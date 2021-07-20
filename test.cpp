@@ -5,13 +5,11 @@
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
-#include <math.h>
 #include <unistd.h>
 #include <pthread.h>
 
 #define SEARCH_TIME 2 // seconds
 #define TEST_TIME 2 // seconds
-#define MAX_TIME 10 // seconds
 #define DEL_TIME 4 // seconds
 #define NUM_OF_ADDRESSES 5;
 #define MIN_CLOSE_CONTACT_TIME 1 // seconds
@@ -222,50 +220,6 @@ int main()
         exit(-1);
     }
 
-    // /* -------------------------------------------------------------------------- */
-    // /*             t0: time zero of the system, t1: last search time,             */
-    // /*                    t2: current time, t3: last test time                    */
-    // /* -------------------------------------------------------------------------- */
-    // double t1 = t0;
-    // double t2 = t0;
-    // double t3 = t0;
-
-    // // first search
-    // recent_contacts.push_back(BTnearMe(t2 - t0));
-
-    // // first test
-    // testCOVID();
-
-    // // FILE* f = fopen("data.txt", "w+");
-
-    // /* -------------------------------- main loop ------------------------------- */
-    // while (1) {
-    //     // record current moment t2
-    //     gettimeofday(&tv, NULL);
-    //     t2 = tv.tv_sec * 1e6;
-    //     t2 = (t2 + tv.tv_usec) * 1e-6;
-
-    //     // compute the difference between current moment and last search
-    //     double search_dt = t2 - t1;
-
-    //     // if the difference is >= than the search time, execute a new search
-    //     if (search_dt >= SEARCH_TIME) {
-
-    //         // add the new contact to recent_contacts vector
-    //         recent_contacts.push_back(BTnearMe(t2 - t0));
-
-    //         // fprintf(f, "MAC Address: %d\t Timestamp: %lf\n", _macaddress, _timestamp);
-    //         // printf("%lf\n", t2 - t0);
-
-    //         // record the last search moment
-    //         t1 = t2;
-
-    //         /* -------------------- delete contacts after delete time ------------------- */
-    //         for (int i = 0; i < recent_contacts.size(); i++) {
-    //             if ((t2 - t0) - recent_contacts[i].timestamp > DEL_TIME)
-    //                 recent_contacts.erase(recent_contacts.begin() + i);
-    //         }
-
     //         /* ------------------------ check for close contacts ------------------------ */
 
     //         for (int i = 0; i < recent_contacts.size() - 1; i++) {
@@ -282,23 +236,6 @@ int main()
     //             }
     //         }
     //     }
-
-    //     // compute the difference between current moment and last test
-    //     double test_dt = t2 - t3;
-        
-    //     // if the difference is >= than the test time, execute a new test
-    //     if (test_dt >= TEST_TIME) {
-
-    //         // execute test
-    //         testCOVID();
-
-    //         // record the last test moment
-    //         t3 = t2;
-    //     }
-
-    //     /* ----------------------------- terminate loop ----------------------------- */
-    //     if (t2 - t0 > MAX_TIME) break;
-    // }
 
     /* ------------------------------ sync threads ------------------------------ */
     pthread_join(timer_thread, NULL);    
