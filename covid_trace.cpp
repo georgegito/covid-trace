@@ -10,7 +10,7 @@
 
 #define SEARCH_TIME 2 // seconds
 #define TEST_TIME 2 // seconds
-#define DEL_TIME 4 // seconds
+#define DEL_TIME 20 // seconds
 #define NUM_OF_ADDRESSES 5;
 #define MIN_CLOSE_CONTACT_TIME 1 // seconds
 #define MAX_CLOSE_CONTACT_TIME 5 // seconds
@@ -139,7 +139,7 @@ void *del(void *arg)
     return (NULL);
 }
 
-void *find_close_contacts(void *arg)
+void *cl_cont(void *arg)
 {
     while(1) {
         usleep(500000);
@@ -165,7 +165,20 @@ void *find_close_contacts(void *arg)
                     
                     if (dt <= MAX_CLOSE_CONTACT_TIME && dt >= MIN_CLOSE_CONTACT_TIME) {
                         double mean_timestamp = (recent_contacts[i].timestamp + recent_contacts[j].timestamp) / 2;
-                        // TODO
+
+                        contact _close_contact;
+                        _close_contact.macaddress = recent_contacts[i].macaddress;
+                        _close_contact.timestamp = mean_timestamp;
+
+                        // delete duplicate close contacts
+                        for (int k = 0; k < close_contacts.size(); k++) {
+                            if (_close_contact.macaddress == close_contacts[k].macaddress) {
+                                close_contacts.erase(close_contacts.begin() + k);
+                            }
+                        }
+
+                        // add new close contact
+                        close_contacts.push_back(_close_contact);
                     }
                 }
             }
@@ -188,11 +201,11 @@ int main()
     t0 = (t0 + tv_main.tv_usec) * 1e-6;
 
     /* ----------------------------- create threads ----------------------------- */
-    // pthread_t *test_threads = (pthread_t *)malloc(sizeof(pthread_t) * NUM_OF_THREADS);
     pthread_t timer_thread;
     pthread_t search_thread;
     pthread_t test_thread;
     pthread_t del_thread;
+    pthread_t cl_cont_thread;
     int rc;
 
     rc = pthread_create(&timer_thread, NULL, timer, NULL);
@@ -220,28 +233,18 @@ int main()
         exit(-1);
     }
 
-    //         /* ------------------------ check for close contacts ------------------------ */
-
-    //         for (int i = 0; i < recent_contacts.size() - 1; i++) {
-    //             for (int j = i + 1; j < recent_contacts.size(); j++) {
-    //                 if (recent_contacts[i].macaddress == recent_contacts[j].macaddress
-    //                     && abs(recent_contacts[i].timestamp - recent_contacts[j].timestamp) <= MAX_CLOSE_CONTACT_TIME
-    //                     && abs(recent_contacts[i].timestamp - recent_contacts[j].timestamp) >= MIN_CLOSE_CONTACT_TIME) {
-    //                     contact _contact;
-    //                     _contact.macaddress = recent_contacts[i].macaddress;
-    //                     _contact.timestamp = (recent_contacts[i].timestamp + recent_contacts[j].timestamp) / 2;
-    //                     std::cout << _contact.macaddress << std::endl;
-    //                     close_contacts.push_back(_contact);
-    //                 }
-    //             }
-    //         }
-    //     }
+    rc = pthread_create(&cl_cont_thread, NULL, cl_cont, NULL);
+    if (rc) {
+        printf("Error: return code from pthread_create() is %d\n", rc);
+        exit(-1);
+    }
 
     /* ------------------------------ sync threads ------------------------------ */
     pthread_join(timer_thread, NULL);    
     pthread_join(search_thread, NULL);
     pthread_join(test_thread, NULL);
     pthread_join(del_thread, NULL);
+    pthread_join(cl_cont_thread, NULL);
 
     /* ------------------------------ print vectors ----------------------------- */
     std::cout << "\nrecent_contacts\n\n";
@@ -253,8 +256,6 @@ int main()
     for (int i = 0; i < close_contacts.size(); i++) {
         std::cout << "MAC Address: " << close_contacts[i].macaddress << "\t" << "Timestamp: " << close_contacts[i].timestamp << std::endl;
     }
-
-    // fclose(f);
 
     return 0;
 }
