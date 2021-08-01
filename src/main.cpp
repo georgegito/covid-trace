@@ -16,10 +16,19 @@ int main()
     srand((unsigned) time(&t));
 
     /* ---------------------------- initialize timer ---------------------------- */
+    double t0 = -1;
+    double cur_t = -1;
+    
     struct timeval tv_main;
     gettimeofday(&tv_main, NULL);
     t0 = tv_main.tv_sec * 1e6;
     t0 = (t0 + tv_main.tv_usec) * 1e-6;
+    
+    /* ------------------------ intialize argument struct ----------------------- */
+    // struct arg_struct args;
+    struct arg_struct *args = (struct arg_struct *)malloc(sizeof(struct arg_struct));
+    args->arg1 = &t0;
+    args->arg2 = &cur_t;
 
     /* ----------------------------- create threads ----------------------------- */
     pthread_t timer_thread;
@@ -29,32 +38,32 @@ int main()
     pthread_t cl_cont_thread;
     int rc;
 
-    rc = pthread_create(&timer_thread, NULL, timer, NULL);
+    rc = pthread_create(&timer_thread, NULL, timer, (void *)args);
     if (rc) {
         printf("Error: return code from pthread_create() is %d\n", rc);
         exit(-1);
     }
 
-    rc = pthread_create(&search_thread, NULL, search, NULL);
+    rc = pthread_create(&search_thread, NULL, search, (void *)args);
     // usleep(100000);
     if (rc) {
         printf("Error: return code from pthread_create() is %d\n", rc);
         exit(-1);
     }
 
-    rc = pthread_create(&test_thread, NULL, test, NULL);
+    rc = pthread_create(&test_thread, NULL, test, (void *)args);
     if (rc) {
         printf("Error: return code from pthread_create() is %d\n", rc);
         exit(-1);
     }
 
-    rc = pthread_create(&del_thread, NULL, del, NULL);
+    rc = pthread_create(&del_thread, NULL, del, (void *)args);
     if (rc) {
         printf("Error: return code from pthread_create() is %d\n", rc);
         exit(-1);
     }
 
-    rc = pthread_create(&cl_cont_thread, NULL, cl_cont, NULL);
+    rc = pthread_create(&cl_cont_thread, NULL, cl_cont, (void *)args);
     if (rc) {
         printf("Error: return code from pthread_create() is %d\n", rc);
         exit(-1);

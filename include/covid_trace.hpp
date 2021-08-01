@@ -14,11 +14,17 @@ typedef struct contact
     double timestamp;
 } contact;
 
+struct arg_struct
+{
+    double *arg1;
+    double *arg2;
+};
+
 /* ----------------------- initialize global variables ---------------------- */
 std::vector<contact> recent_contacts;
 std::vector<contact> close_contacts;
-double t0 = -1;
-double cur_t = -1;
+// double t0 = -1;
+// double cur_t = -1;
 /* -------------------------------------------------------------------------- */
 
 contact BTnearMe(double timestamp)
@@ -52,6 +58,10 @@ void uploadContacts(contact* arg1, int arg2)
 
 void *timer(void *arg)
 {
+    struct arg_struct *args = (struct arg_struct*)arg;
+    double *_t0 = args->arg1;
+    double *_cur_t = args->arg2;
+
     // initialize timer
     struct timeval tv_timer;
     double timer_t;
@@ -61,9 +71,9 @@ void *timer(void *arg)
         timer_t = tv_timer.tv_sec * 1e6;
         timer_t = (timer_t + tv_timer.tv_usec) * 1e-6;
 
-        cur_t = timer_t - t0;
+        *_cur_t = timer_t - *_t0;
 
-        if (cur_t > END_TIME) break;
+        if (*_cur_t > END_TIME) break;
 
         usleep(100); // TODO check efficiency
     }
@@ -73,18 +83,20 @@ void *timer(void *arg)
 
 void *search(void *arg)
 {
-    // int id = *(int *)arg;
+    struct arg_struct *args = (struct arg_struct*)arg;
+    double *_t0 = args->arg1;
+    double *_cur_t = args->arg2;
 
     // first search
-    recent_contacts.push_back(BTnearMe(cur_t));
+    recent_contacts.push_back(BTnearMe(*_cur_t));
 
     // search every SEARCH_TIME seconds
     while(1) {
         usleep(SEARCH_TIME * 1000000);
 
-        if (cur_t > END_TIME) break;
+        if (*_cur_t > END_TIME) break;
 
-        recent_contacts.push_back(BTnearMe(cur_t));
+        recent_contacts.push_back(BTnearMe(*_cur_t));
         // std::cout << "I am a test thread with id = " << id << " and time = " << cur_t << std::endl;
     }
 
@@ -93,6 +105,10 @@ void *search(void *arg)
 
 void *test(void *arg)
 {
+    struct arg_struct *args = (struct arg_struct*)arg;
+    double *_t0 = args->arg1;
+    double *_cur_t = args->arg2;
+
     // first test
     testCOVID();
 
@@ -100,11 +116,11 @@ void *test(void *arg)
     while(1) {
         usleep(TEST_TIME * 1000000);
 
-        if (cur_t > END_TIME) break;
+        if (*_cur_t > END_TIME) break;
 
         testCOVID();
 
-        std::cout << "Test time: " << cur_t << std::endl;        
+        std::cout << "Test time: " << *_cur_t << std::endl;        
     }
 
   return (NULL);
@@ -112,13 +128,17 @@ void *test(void *arg)
 
 void *del(void *arg)
 {
+    struct arg_struct *args = (struct arg_struct*)arg;
+    double *_t0 = args->arg1;
+    double *_cur_t = args->arg2;
+
     while(1) {
         usleep(500000);
 
-        if (cur_t > END_TIME) break;
+        if (*_cur_t > END_TIME) break;
         
         if (recent_contacts.size() > 0) {
-            if (cur_t - recent_contacts[0].timestamp > DEL_TIME)
+            if (*_cur_t - recent_contacts[0].timestamp > DEL_TIME)
                 recent_contacts.erase(recent_contacts.begin()); // TODO change data structure & use mutex
         } 
         
@@ -130,13 +150,17 @@ void *del(void *arg)
 
 void *cl_cont(void *arg)
 {
+    struct arg_struct *args = (struct arg_struct*)arg;
+    double *_t0 = args->arg1;
+    double *_cur_t = args->arg2;
+
     while(1) {
         usleep(500000);
 
-        if (cur_t > END_TIME) break;
+        if (*_cur_t > END_TIME) break;
 
         if (close_contacts.size() > 0) {
-            if (cur_t - close_contacts[0].timestamp > CLOSE_DEL_TIME)
+            if (*_cur_t - close_contacts[0].timestamp > CLOSE_DEL_TIME)
                 close_contacts.erase(close_contacts.begin()); // TODO change data structure & use mutex
         }
 
