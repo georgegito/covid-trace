@@ -1,9 +1,16 @@
 CC=g++
 CFLAGS= -O3
 
+BUILD_DIR=build
+SRC_DIR=src
+INCLUDE_DIR=./include
+SOURCES := $(shell find $(SRC_DIR) -name '*.cpp')
+
+$(info $(shell mkdir -p $(BUILD_DIR)))
+
 default: compile
 
 compile:
-	$(CC) -o covid_trace covid_trace.cpp $(CFLAGS) -lpthread
-	./covid_trace
+	$(CC) -o $(BUILD_DIR)/main -I$(INCLUDE_DIR) $(SOURCES) $(CFLAGS) -lpthread
+	./build/main
 	@printf "\n"
