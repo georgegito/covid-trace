@@ -1,10 +1,10 @@
 #define SEARCH_TIME 2 // seconds
 #define TEST_TIME 2 // seconds
 #define DEL_TIME 20 // seconds
-#define NUM_OF_ADDRESSES 5
+#define NUM_OF_ADDRESSES 3
 #define MIN_CLOSE_CONTACT_TIME 1 // seconds
 #define MAX_CLOSE_CONTACT_TIME 5 // seconds
-#define POS_TEST_PROP 10 // %, must divide 100
+#define POS_TEST_PROP 25 // %, must divide 100
 #define END_TIME 15 // seconds
 #define CLOSE_DEL_TIME 20 // seconds
 
@@ -25,6 +25,8 @@ std::vector<contact> recent_contacts;
 std::vector<contact> close_contacts;
 // double t0 = -1;
 // double cur_t = -1;
+FILE *fptr;
+
 /* -------------------------------------------------------------------------- */
 
 contact BTnearMe(double timestamp)
@@ -46,13 +48,28 @@ bool testCOVID() // positive result propability: POS_TEST_PROP %
         return true;
     }
     else {
-        std::cout << "Negative COVID test\n";
+        // std::cout << "Negative COVID test\n";
         return false;
     }
 }
 
-void uploadContacts(contact* arg1, int arg2)
+void uploadContacts(double cur_t)
 {
+    fptr = fopen("close_contacts.txt","a+");
+
+    if(fptr == NULL)
+    {
+        printf("Error!");   
+        exit(1);             
+    }
+
+    // write close contacts to file
+    for (int i = 0; i < close_contacts.size(); i++) {
+        fprintf(fptr, "%ld\t%lf\t%lf\n", close_contacts[i].macaddress, close_contacts[i].timestamp, cur_t);
+    }
+
+    fclose(fptr);
+
     return;
 }
 
@@ -66,7 +83,7 @@ void *timer(void *arg)
     struct timeval tv_timer;
     double timer_t;
 
-    while(1) {
+    while (1) {
         gettimeofday(&tv_timer, NULL);
         timer_t = tv_timer.tv_sec * 1e6;
         timer_t = (timer_t + tv_timer.tv_usec) * 1e-6;
@@ -78,7 +95,7 @@ void *timer(void *arg)
         usleep(100); // TODO check efficiency
     }
 
-    return(NULL);
+    return (NULL);
 }
 
 void *search(void *arg)
@@ -91,7 +108,7 @@ void *search(void *arg)
     recent_contacts.push_back(BTnearMe(*_cur_t));
 
     // search every SEARCH_TIME seconds
-    while(1) {
+    while (1) {
         usleep(SEARCH_TIME * 1000000);
 
         if (*_cur_t > END_TIME) break;
@@ -100,7 +117,7 @@ void *search(void *arg)
         // std::cout << "I am a test thread with id = " << id << " and time = " << cur_t << std::endl;
     }
 
-  return (NULL);
+    return (NULL);
 }
 
 void *test(void *arg)
@@ -109,21 +126,26 @@ void *test(void *arg)
     double *_t0 = args->arg1;
     double *_cur_t = args->arg2;
 
+    fptr = fopen("close_contacts.txt","w");
+    fclose(fptr);
+
     // first test
-    testCOVID();
+    if (testCOVID()) 
+        uploadContacts(*_cur_t);
 
     // test every TEST_TIME seconds
-    while(1) {
+    while (1) {
         usleep(TEST_TIME * 1000000);
 
         if (*_cur_t > END_TIME) break;
 
-        testCOVID();
+        if (testCOVID())
+            uploadContacts(*_cur_t);
 
         std::cout << "Test time: " << *_cur_t << std::endl;        
     }
 
-  return (NULL);
+    return (NULL);
 }
 
 void *del(void *arg)
@@ -132,7 +154,7 @@ void *del(void *arg)
     double *_t0 = args->arg1;
     double *_cur_t = args->arg2;
 
-    while(1) {
+    while (1) {
         usleep(500000);
 
         if (*_cur_t > END_TIME) break;
@@ -154,7 +176,7 @@ void *cl_cont(void *arg)
     double *_t0 = args->arg1;
     double *_cur_t = args->arg2;
 
-    while(1) {
+    while (1) {
         usleep(500000);
 
         if (*_cur_t > END_TIME) break;
