@@ -1,3 +1,6 @@
+#ifndef __COVID_TRACE_HPP__
+#define __COVID_TRACE_HPP__
+
 #define SEARCH_TIME 2 // seconds
 #define TEST_TIME 2 // seconds
 #define DEL_TIME 20 // seconds
@@ -55,6 +58,7 @@ bool testCOVID() // positive result propability: POS_TEST_PROP %
 
 void uploadContacts(double cur_t)
 {
+    // fptr = fopen("close_contacts.bin","ab+");
     fptr = fopen("close_contacts.txt","a+");
 
     if(fptr == NULL)
@@ -66,6 +70,8 @@ void uploadContacts(double cur_t)
     // write close contacts to file
     for (int i = 0; i < close_contacts.size(); i++) {
         fprintf(fptr, "%ld\t%lf\t%lf\n", close_contacts[i].macaddress, close_contacts[i].timestamp, cur_t);
+        // fwrite(&close_contacts[i], sizeof(contact), 1, fptr);
+        // fwrite(&close_contacts[i].timestamp, sizeof(double), 1, fptr);
     }
 
     fclose(fptr);
@@ -126,6 +132,7 @@ void *test(void *arg)
     double *_t0 = args->arg1;
     double *_cur_t = args->arg2;
 
+    // fptr = fopen("close_contacts.bin","wb");
     fptr = fopen("close_contacts.txt","w");
     fclose(fptr);
 
@@ -222,3 +229,5 @@ void *cl_cont(void *arg)
 
     return (NULL);
 }
+
+#endif // COVID_TRACE_HPP
