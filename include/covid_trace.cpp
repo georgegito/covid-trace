@@ -1,42 +1,17 @@
-#ifndef __COVID_TRACE_HPP__
-#define __COVID_TRACE_HPP__
-
-#define SEARCH_TIME 2 // seconds
-#define TEST_TIME 2 // seconds
-#define DEL_TIME 20 // seconds
-#define NUM_OF_ADDRESSES 3
-#define MIN_CLOSE_CONTACT_TIME 1 // seconds
-#define MAX_CLOSE_CONTACT_TIME 5 // seconds
-#define POS_TEST_PROP 25 // %, must divide 100
-#define END_TIME 15 // seconds
-#define CLOSE_DEL_TIME 20 // seconds
-
-typedef struct contact
-{
-    uint64_t macaddress : 48;
-    double timestamp;
-} contact;
-
-struct arg_struct
-{
-    double *arg1;
-    double *arg2;
-};
-
-/* ----------------------- initialize global variables ---------------------- */
-std::vector<contact> recent_contacts;
-std::vector<contact> close_contacts;
-// double t0 = -1;
-// double cur_t = -1;
-FILE *fptr;
-
-/* -------------------------------------------------------------------------- */
-
 contact BTnearMe(double timestamp)
 {
     contact _contact;
     _contact.macaddress = rand() % NUM_OF_ADDRESSES;
     _contact.timestamp = timestamp;
+
+    return _contact;
+}
+
+contact *BTnearMe2(double timestamp)
+{
+    contact *_contact = (contact *)malloc(sizeof(contact));
+    _contact->macaddress = rand() % NUM_OF_ADDRESSES;
+    _contact->timestamp = timestamp;
 
     return _contact;
 }
@@ -113,6 +88,10 @@ void *search(void *arg)
     // first search
     recent_contacts.push_back(BTnearMe(*_cur_t));
 
+    pthread_mutex_lock(recent_contacts_queue->mut);
+    queueAdd(recent_contacts_queue, BTnearMe2(*_cur_t));
+    pthread_mutex_unlock(recent_contacts_queue->mut);
+
     // search every SEARCH_TIME seconds
     while (1) {
         usleep(SEARCH_TIME * 1000000);
@@ -120,7 +99,10 @@ void *search(void *arg)
         if (*_cur_t > END_TIME) break;
 
         recent_contacts.push_back(BTnearMe(*_cur_t));
-        // std::cout << "I am a test thread with id = " << id << " and time = " << cur_t << std::endl;
+
+        pthread_mutex_lock(recent_contacts_queue->mut);
+        queueAdd(recent_contacts_queue, BTnearMe2(*_cur_t));
+        pthread_mutex_unlock(recent_contacts_queue->mut);
     }
 
     return (NULL);
@@ -169,7 +151,20 @@ void *del(void *arg)
         if (recent_contacts.size() > 0) {
             if (*_cur_t - recent_contacts[0].timestamp > DEL_TIME)
                 recent_contacts.erase(recent_contacts.begin()); // TODO change data structure & use mutex
-        } 
+        }
+
+        if (!recent_contacts_queue->empty) {
+            // pthread_mutex_lock(recent_contacts_queue->mut);
+
+            if (*_cur_t - recent_contacts_queue->buf[recent_contacts_queue->head]->timestamp > DEL_TIME) {
+
+                pthread_mutex_lock(recent_contacts_queue->mut);
+                queueDel(recent_contacts_queue);
+                pthread_mutex_unlock(recent_contacts_queue->mut);
+            }
+
+            // pthread_mutex_unlock(recent_contacts_queue->mut);
+        }
         
         // std::cout << "Current time: " << cur_t << std::endl;
     }
@@ -230,4 +225,52 @@ void *cl_cont(void *arg)
     return (NULL);
 }
 
-#endif // COVID_TRACE_HPP
+void cont_prt(queue *q)
+{
+    printf("\nContacts:\n\n");
+
+    if (q->empty == 1) {
+
+        printf("No contacts\n");
+        return;
+    }
+
+    if (q->full == 1) {
+        
+        int _count = 0;
+        for (int i = q->head; ; i++) {
+            if (i == QUEUESIZE)
+                i = 0;
+
+            printf("MAC Address: %ld\tTimestamp: %lf\n", q->buf[i]->macaddress, q->buf[i]->timestamp);
+
+            if (++_count == QUEUESIZE)
+                break;
+        }
+
+        return;
+    }
+
+
+    if (q->head < q->tail) {
+        for (int i = q->head; i < q->tail; i++) {
+            printf("MAC Address: %ld\tTimestamp: %lf\n", q->buf[i]->macaddress, q->buf[i]->timestamp);
+        }
+
+        return;
+    }
+
+    if (q->head > q->tail) {
+        for (int i = q->head; ; i++) {
+            if (i == QUEUESIZE)
+                i = 0;
+
+            if (i == q->tail)
+                break;
+
+            printf("MAC Address: %ld\tTimestamp: %lf\n", q->buf[i]->macaddress, q->buf[i]->timestamp);
+        }
+        
+        return;
+    }
+}

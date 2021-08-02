@@ -7,7 +7,9 @@
 #include <iostream>
 #include <unistd.h>
 #include <pthread.h>
-#include <covid_trace.hpp>
+#include <headers.hpp>
+#include <covid_trace.cpp>
+#include <queue.cpp>
 
 int main()
 {
@@ -29,6 +31,10 @@ int main()
     struct arg_struct *args = (struct arg_struct *)malloc(sizeof(struct arg_struct));
     args->arg1 = &t0;
     args->arg2 = &cur_t;
+
+    /* ------------------------ initialize contact queues ----------------------- */
+    recent_contacts_queue = queueInit();
+    close_contacts_queue = queueInit();
 
     /* ----------------------------- create threads ----------------------------- */
     pthread_t timer_thread;
@@ -86,6 +92,11 @@ int main()
     for (int i = 0; i < close_contacts.size(); i++) {
         std::cout << "MAC Address: " << close_contacts[i].macaddress << "\t" << "Timestamp: " << close_contacts[i].timestamp << std::endl;
     }
+
+    cont_prt(recent_contacts_queue);
+
+    /* ------------------------------- free memory ------------------------------ */
+    queueDelete(recent_contacts_queue);
 
     return 0;
 }
