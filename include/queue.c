@@ -2,32 +2,35 @@
 /*                                   queue.c                                  */
 /* -------------------------------------------------------------------------- */
 
-queue *queueInit()
+queue* queueInit(int bufSize)
 {
-  queue *q;
+  queue* q;
 
-  q = (queue *)malloc(sizeof (queue));
+  q = (queue*)malloc(sizeof(queue));
   if (q == NULL) return (NULL);
 
+  q->buf = (contact**)malloc(bufSize * sizeof(contact*));
   q->empty = 1;
   q->full = 0;
   q->head = 0;
   q->tail = 0;
   q->lastAddIndex = -1;
-  q->mut = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+  q->bufSize = bufSize;
+  q->mut = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
   pthread_mutex_init(q->mut, NULL);
-  q->notFull = (pthread_cond_t *)malloc(sizeof(pthread_cond_t));
+  q->notFull = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));
   pthread_cond_init(q->notFull, NULL);
-  q->notEmpty = (pthread_cond_t *)malloc(sizeof(pthread_cond_t));
+  q->notEmpty = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));
   pthread_cond_init(q->notEmpty, NULL);
 
   return (q);
 }
 
-void queueDelete(queue *q)
+void queueDelete(queue* q)
 {
+  free(q->buf);
   pthread_mutex_destroy(q->mut);
-  free(q->mut);	
+  free(q->mut);
   pthread_cond_destroy(q->notFull);
   free(q->notFull);
   pthread_cond_destroy(q->notEmpty);
@@ -35,7 +38,7 @@ void queueDelete(queue *q)
   free(q);
 }
 
-void queueAdd(queue *q,  contact *in)
+void queueAdd(queue* q, contact* in)
 {
   if (q->full)
     printf("Warning! Queue is full! \n");
@@ -44,7 +47,7 @@ void queueAdd(queue *q,  contact *in)
   q->lastAddIndex = q->tail;
   q->tail++;
 
-  if (q->tail == QUEUESIZE)
+  if (q->tail == q->bufSize)
     q->tail = 0;
   if (q->tail == q->head)
     q->full = 1;
@@ -53,10 +56,10 @@ void queueAdd(queue *q,  contact *in)
   return;
 }
 
-void queueDel(queue *q)
+void queueDel(queue* q)
 {
   q->head++;
-  if (q->head == QUEUESIZE)
+  if (q->head == q->bufSize)
     q->head = 0;
   if (q->head == q->tail)
     q->empty = 1;

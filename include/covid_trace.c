@@ -17,7 +17,7 @@ bool testCOVID() // positive result propability: POS_TEST_PROP %
     int temp2 = rand() % temp1;
 
     if (temp2 == 0) {
-        printf("Positive COVID test\n");
+        // printf("Positive COVID test\n");
         return true;
     }
     else {
@@ -98,7 +98,7 @@ void* test(void* arg)
         if (testCOVID())
             uploadContacts(*_cur_t);
 
-        printf("Test time: %lf\n", *_cur_t);
+        // printf("Test time: %lf\n", *_cur_t);
     }
 
     return (NULL);
@@ -126,7 +126,7 @@ void* rec_cont(void* arg) // TODO will be renamed to rec_cont
 
         if (!_recent_contacts_queue->empty) {
 
-            if (*_cur_t - _recent_contacts_queue->buf[_recent_contacts_queue->head]->timestamp > DEL_TIME) {
+            if (*_cur_t - _recent_contacts_queue->buf[_recent_contacts_queue->head]->timestamp > RECENT_DEL_TIME) {
 
                 // pthread_mutex_lock(recent_contacts_queue->mut);
                 queueDel(_recent_contacts_queue);
@@ -190,7 +190,7 @@ void* cl_cont(void* arg)
                 for (int i = _last_added_index; ; i--) {
 
                     if (i < 0) {
-                        i = QUEUESIZE - 1;
+                        i = _recent_contacts_queue->bufSize - 1;
                     }
 
                     if (_last_added_cont.timestamp - _recent_contacts_queue->buf[i]->timestamp > MAX_CLOSE_CONTACT_TIME) {
@@ -208,7 +208,7 @@ void* cl_cont(void* arg)
                 // check close contacts of last added contact
                 for (int i = _start_index; ; i++) {
 
-                    if (i == QUEUESIZE) {
+                    if (i == _recent_contacts_queue->bufSize) {
                         i = 0;
                     }
 
@@ -247,7 +247,7 @@ void cont_prt(queue* q)
 
     int i = q->head;
     do {
-        if (i == QUEUESIZE) {
+        if (i == q->bufSize) {
             i = 0;
             if (i == q->tail)
                 break;

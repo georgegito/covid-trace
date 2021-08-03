@@ -7,15 +7,17 @@
 
 #define SEARCH_TIME 2 // seconds
 #define TEST_TIME 2 // seconds
-#define DEL_TIME 30 // seconds
-#define NUM_OF_ADDRESSES 3
+#define RECENT_DEL_TIME 20 // seconds
+#define NUM_OF_ADDRESSES 4
 #define MIN_CLOSE_CONTACT_TIME 1 // seconds
-#define MAX_CLOSE_CONTACT_TIME 5 // seconds
+#define MAX_CLOSE_CONTACT_TIME 6 // seconds
 #define POS_TEST_PROP 25 // %, must divide 100
 #define END_TIME 15 // seconds
 #define CLOSE_DEL_TIME 20 // seconds
-#define QUEUESIZE (DEL_TIME / SEARCH_TIME + 1)
+#define RECENT_QUEUESIZE (RECENT_DEL_TIME / SEARCH_TIME + 1)
+#define CLOSE_QUEUESIZE ((CLOSE_DEL_TIME / SEARCH_TIME) * ((MAX_CLOSE_CONTACT_TIME - MIN_CLOSE_CONTACT_TIME) / SEARCH_TIME) + 1) // TODO check
 
+/* --------------------------------- structs -------------------------------- */
 typedef struct contact
 {
   unsigned long macaddress : 48;
@@ -23,9 +25,9 @@ typedef struct contact
 } contact;
 
 typedef struct {
-  contact* buf[QUEUESIZE];
+  contact** buf;
   long head, tail;
-  int full, empty, lastAddIndex;
+  int full, empty, lastAddIndex, bufSize;
   pthread_mutex_t* mut;
   pthread_cond_t* notFull, * notEmpty;
 } queue;
@@ -40,7 +42,7 @@ struct arg_struct
 };
 
 /* ---------------------------- declare functions --------------------------- */
-queue* queueInit();
+queue* queueInit(int bufSize);
 void queueDelete(queue* q);
 void queueAdd(queue* q, contact* in);
 void queueDel(queue* q);

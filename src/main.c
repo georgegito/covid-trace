@@ -31,8 +31,8 @@ int main()
     /* ------------------------ initialize contact queues ----------------------- */
     queue* recent_contacts_queue;
     queue* close_contacts_queue;
-    recent_contacts_queue = queueInit();
-    close_contacts_queue = queueInit();
+    recent_contacts_queue = queueInit(RECENT_QUEUESIZE);
+    close_contacts_queue = queueInit(CLOSE_QUEUESIZE);
 
     /* --------------------------- create output file --------------------------- */
     FILE* fptr;
@@ -91,10 +91,10 @@ int main()
     cont_prt(close_contacts_queue);
 
     /* ------------------------------- free memory ------------------------------ */
-    for (int i = 0; i < QUEUESIZE; i++)
+    for (int i = 0; i < recent_contacts_queue->bufSize; i++)
         free(recent_contacts_queue->buf[i]);
 
-    for (int i = 0; i < QUEUESIZE; i++)
+    for (int i = 0; i < close_contacts_queue->bufSize; i++)
         free(close_contacts_queue->buf[i]);
 
     queueDelete(recent_contacts_queue);
