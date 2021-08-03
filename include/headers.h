@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/*                                 headers.hpp                                */
+/*                                  headers.h                                 */
 /* -------------------------------------------------------------------------- */
 
 #ifndef __HEADERS_HPP__
@@ -18,41 +18,41 @@
 
 typedef struct contact
 {
-    uint64_t macaddress : 48;
-    double timestamp;
+  unsigned long macaddress : 48;
+  double timestamp;
 } contact;
 
 typedef struct {
-  contact *buf[QUEUESIZE];
+  contact* buf[QUEUESIZE];
   long head, tail;
   int full, empty, lastAddIndex;
-  pthread_mutex_t *mut;
-  pthread_cond_t *notFull, *notEmpty;
+  pthread_mutex_t* mut;
+  pthread_cond_t* notFull, * notEmpty;
 } queue;
 
 struct arg_struct
 {
-    double *arg1;
-    double *arg2;
-    queue *arg3;
-    queue *arg4;
-    FILE *arg5;
+  double* arg1;
+  double* arg2;
+  queue* arg3;
+  queue* arg4;
+  FILE* arg5;
 };
 
 /* ---------------------------- declare functions --------------------------- */
-queue *queueInit();
-void queueDelete(queue *q);
-void queueAdd(queue *q, contact *in);
-void queueDel(queue *q);
+queue* queueInit();
+void queueDelete(queue* q);
+void queueAdd(queue* q, contact* in);
+void queueDel(queue* q);
 
-contact *BTnearMe(double timestamp);
+contact* BTnearMe(double timestamp);
 bool testCOVID();
 void uploadContacts(double cur_t);
-void *timer(void *arg);
-void *test(void *arg);
-void *rec_cont(void *arg);
-void *cl_cont(void *arg);
-void cont_prt(queue *q);
+void* timer(void* arg);
+void* test(void* arg);
+void* rec_cont(void* arg);
+void* cl_cont(void* arg);
+void cont_prt(queue* q);
 
 /* -------------------------------------------------------------------------- */
 

@@ -1,10 +1,10 @@
 /* -------------------------------------------------------------------------- */
-/*                               covid_trace.cpp                              */
+/*                                covid_trace.c                               */
 /* -------------------------------------------------------------------------- */
 
-contact *BTnearMe(double timestamp)
+contact* BTnearMe(double timestamp)
 {
-    contact *_contact = (contact *)malloc(sizeof(contact));
+    contact* _contact = (contact*)malloc(sizeof(contact));
     _contact->macaddress = rand() % NUM_OF_ADDRESSES;
     _contact->timestamp = timestamp;
 
@@ -15,13 +15,13 @@ bool testCOVID() // positive result propability: POS_TEST_PROP %
 {
     int temp1 = 100 / POS_TEST_PROP;
     int temp2 = rand() % temp1;
-    
+
     if (temp2 == 0) {
-        std::cout << "Positive COVID test\n";
+        printf("Positive COVID test\n");
         return true;
     }
     else {
-        // std::cout << "Negative COVID test\n";
+        // printf("Negative COVID test\n");
         return false;
     }
 }
@@ -49,11 +49,11 @@ void uploadContacts(double cur_t)
     return;
 }
 
-void *timer(void *arg)
+void* timer(void* arg)
 {
-    struct arg_struct *args = (struct arg_struct*)arg;
-    double *_t0 = args->arg1;
-    double *_cur_t = args->arg2;
+    struct arg_struct* args = (struct arg_struct*)arg;
+    double* _t0 = args->arg1;
+    double* _cur_t = args->arg2;
 
     // initialize timer
     struct timeval tv_timer;
@@ -74,19 +74,19 @@ void *timer(void *arg)
     return (NULL);
 }
 
-void *test(void *arg)
+void* test(void* arg)
 {
-    struct arg_struct *args = (struct arg_struct*)arg;
-    double *_t0 = args->arg1;
-    double *_cur_t = args->arg2;
-    FILE *_fptr = args->arg5;
+    struct arg_struct* args = (struct arg_struct*)arg;
+    double* _t0 = args->arg1;
+    double* _cur_t = args->arg2;
+    FILE* _fptr = args->arg5;
 
     // fptr = fopen("close_contacts.bin","wb");
-    _fptr = fopen("close_contacts.txt","w");
+    _fptr = fopen("close_contacts.txt", "w");
     fclose(_fptr);
 
     // first test
-    if (testCOVID()) 
+    if (testCOVID())
         uploadContacts(*_cur_t);
 
     // test every TEST_TIME seconds
@@ -98,18 +98,18 @@ void *test(void *arg)
         if (testCOVID())
             uploadContacts(*_cur_t);
 
-        std::cout << "Test time: " << *_cur_t << std::endl;        
+        printf("Test time: %lf\n", *_cur_t);
     }
 
     return (NULL);
 }
 
-void *rec_cont(void *arg) // TODO will be renamed to rec_cont
+void* rec_cont(void* arg) // TODO will be renamed to rec_cont
 {
-    struct arg_struct *args = (struct arg_struct*)arg;
-    double *_t0 = args->arg1;
-    double *_cur_t = args->arg2;
-    queue *_recent_contacts_queue = args->arg3;
+    struct arg_struct* args = (struct arg_struct*)arg;
+    double* _t0 = args->arg1;
+    double* _cur_t = args->arg2;
+    queue* _recent_contacts_queue = args->arg3;
 
     // first add
     queueAdd(_recent_contacts_queue, BTnearMe(*_cur_t));
@@ -120,10 +120,10 @@ void *rec_cont(void *arg) // TODO will be renamed to rec_cont
 
         if (*_cur_t > END_TIME) break;
 
-    /* -------------------------------------------------------------------------- */
-    /*                                pop contacts                                */
-    /* -------------------------------------------------------------------------- */
-    
+        /* -------------------------------------------------------------------------- */
+        /*                                pop contacts                                */
+        /* -------------------------------------------------------------------------- */
+
         if (!_recent_contacts_queue->empty) {
 
             if (*_cur_t - _recent_contacts_queue->buf[_recent_contacts_queue->head]->timestamp > DEL_TIME) {
@@ -134,9 +134,9 @@ void *rec_cont(void *arg) // TODO will be renamed to rec_cont
             }
         }
 
-    /* -------------------------------------------------------------------------- */
-    /*                                add contacts                                */
-    /* -------------------------------------------------------------------------- */
+        /* -------------------------------------------------------------------------- */
+        /*                                add contacts                                */
+        /* -------------------------------------------------------------------------- */
 
         queueAdd(_recent_contacts_queue, BTnearMe(*_cur_t));
     }
@@ -144,13 +144,13 @@ void *rec_cont(void *arg) // TODO will be renamed to rec_cont
     return (NULL);
 }
 
-void *cl_cont(void *arg)
+void* cl_cont(void* arg)
 {
-    struct arg_struct *args = (struct arg_struct*)arg;
-    double *_t0 = args->arg1;
-    double *_cur_t = args->arg2;
-    queue *_recent_contacts_queue = args->arg3;
-    queue *_close_contacts_queue = args->arg4;
+    struct arg_struct* args = (struct arg_struct*)arg;
+    double* _t0 = args->arg1;
+    double* _cur_t = args->arg2;
+    queue* _recent_contacts_queue = args->arg3;
+    queue* _close_contacts_queue = args->arg4;
 
     double last_checked_timestamp = -1;
 
@@ -159,9 +159,9 @@ void *cl_cont(void *arg)
 
         if (*_cur_t > END_TIME) break;
 
-    /* -------------------------------------------------------------------------- */
-    /*                                pop contacts                                */
-    /* -------------------------------------------------------------------------- */
+        /* -------------------------------------------------------------------------- */
+        /*                                pop contacts                                */
+        /* -------------------------------------------------------------------------- */
 
         if (!_close_contacts_queue->empty) {
 
@@ -171,9 +171,9 @@ void *cl_cont(void *arg)
             }
         }
 
-    /* -------------------------------------------------------------------------- */
-    /*                                add contacts                                */
-    /* -------------------------------------------------------------------------- */
+        /* -------------------------------------------------------------------------- */
+        /*                                add contacts                                */
+        /* -------------------------------------------------------------------------- */
 
         if (!_recent_contacts_queue->empty) {
 
@@ -222,7 +222,7 @@ void *cl_cont(void *arg)
 
                     if (_recent_contacts_queue->buf[i]->macaddress == _last_added_cont.macaddress) {
                         // add close contact
-                        contact *_close_contact = (contact *)malloc(sizeof(contact));
+                        contact* _close_contact = (contact*)malloc(sizeof(contact));
                         _close_contact->macaddress = _last_added_cont.macaddress;
                         _close_contact->timestamp = _last_added_cont.timestamp;
                         queueAdd(_close_contacts_queue, _close_contact);
@@ -237,7 +237,7 @@ void *cl_cont(void *arg)
     return (NULL);
 }
 
-void cont_prt(queue *q)
+void cont_prt(queue* q)
 {
     if (q->empty == 1) {
 
@@ -247,13 +247,13 @@ void cont_prt(queue *q)
 
     int i = q->head;
     do {
-            if (i == QUEUESIZE) {
-                i = 0;
-                if (i == q->tail)
-                    break;
-            }
+        if (i == QUEUESIZE) {
+            i = 0;
+            if (i == q->tail)
+                break;
+        }
 
-            printf("MAC Address: %ld\tTimestamp: %lf\n", q->buf[i]->macaddress, q->buf[i]->timestamp);
-            i++;
+        printf("MAC Address: %lu\tTimestamp: %lf\n", (unsigned long)q->buf[i]->macaddress, q->buf[i]->timestamp);
+        i++;
     } while (i != q->tail);
 }
