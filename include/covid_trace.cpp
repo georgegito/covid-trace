@@ -1,3 +1,7 @@
+/* -------------------------------------------------------------------------- */
+/*                               covid_trace.cpp                              */
+/* -------------------------------------------------------------------------- */
+
 contact *BTnearMe(double timestamp)
 {
     contact *_contact = (contact *)malloc(sizeof(contact));
@@ -75,10 +79,11 @@ void *test(void *arg)
     struct arg_struct *args = (struct arg_struct*)arg;
     double *_t0 = args->arg1;
     double *_cur_t = args->arg2;
+    FILE *_fptr = args->arg5;
 
     // fptr = fopen("close_contacts.bin","wb");
-    fptr = fopen("close_contacts.txt","w");
-    fclose(fptr);
+    _fptr = fopen("close_contacts.txt","w");
+    fclose(_fptr);
 
     // first test
     if (testCOVID()) 
@@ -104,9 +109,10 @@ void *rec_cont(void *arg) // TODO will be renamed to rec_cont
     struct arg_struct *args = (struct arg_struct*)arg;
     double *_t0 = args->arg1;
     double *_cur_t = args->arg2;
+    queue *_recent_contacts_queue = args->arg3;
 
     // first add
-    queueAdd(recent_contacts_queue, BTnearMe(*_cur_t));
+    queueAdd(_recent_contacts_queue, BTnearMe(*_cur_t));
 
     // search every SEARCH_TIME seconds
     while (1) {
@@ -118,12 +124,12 @@ void *rec_cont(void *arg) // TODO will be renamed to rec_cont
     /*                                pop contacts                                */
     /* -------------------------------------------------------------------------- */
     
-        if (!recent_contacts_queue->empty) {
+        if (!_recent_contacts_queue->empty) {
 
-            if (*_cur_t - recent_contacts_queue->buf[recent_contacts_queue->head]->timestamp > DEL_TIME) {
+            if (*_cur_t - _recent_contacts_queue->buf[_recent_contacts_queue->head]->timestamp > DEL_TIME) {
 
                 // pthread_mutex_lock(recent_contacts_queue->mut);
-                queueDel(recent_contacts_queue);
+                queueDel(_recent_contacts_queue);
                 // pthread_mutex_unlock(recent_contacts_queue->mut);
             }
         }
@@ -132,7 +138,7 @@ void *rec_cont(void *arg) // TODO will be renamed to rec_cont
     /*                                add contacts                                */
     /* -------------------------------------------------------------------------- */
 
-        queueAdd(recent_contacts_queue, BTnearMe(*_cur_t));
+        queueAdd(_recent_contacts_queue, BTnearMe(*_cur_t));
     }
 
     return (NULL);
@@ -143,6 +149,8 @@ void *cl_cont(void *arg)
     struct arg_struct *args = (struct arg_struct*)arg;
     double *_t0 = args->arg1;
     double *_cur_t = args->arg2;
+    queue *_recent_contacts_queue = args->arg3;
+    queue *_close_contacts_queue = args->arg4;
 
     double last_checked_timestamp = -1;
 
@@ -155,11 +163,11 @@ void *cl_cont(void *arg)
     /*                                pop contacts                                */
     /* -------------------------------------------------------------------------- */
 
-        if (!close_contacts_queue->empty) {
+        if (!_close_contacts_queue->empty) {
 
-            if (*_cur_t - close_contacts_queue->buf[close_contacts_queue->head]->timestamp > CLOSE_DEL_TIME) {
+            if (*_cur_t - _close_contacts_queue->buf[_close_contacts_queue->head]->timestamp > CLOSE_DEL_TIME) {
 
-                queueDel(close_contacts_queue);
+                queueDel(_close_contacts_queue);
             }
         }
 
@@ -167,17 +175,17 @@ void *cl_cont(void *arg)
     /*                                add contacts                                */
     /* -------------------------------------------------------------------------- */
 
-        if (!recent_contacts_queue->empty) {
+        if (!_recent_contacts_queue->empty) {
 
-            int _last_added_index = recent_contacts_queue->lastAddIndex;
+            int _last_added_index = _recent_contacts_queue->lastAddIndex;
             contact _last_added_cont;
-            _last_added_cont.macaddress = recent_contacts_queue->buf[_last_added_index]->macaddress;
-            _last_added_cont.timestamp = recent_contacts_queue->buf[_last_added_index]->timestamp;
+            _last_added_cont.macaddress = _recent_contacts_queue->buf[_last_added_index]->macaddress;
+            _last_added_cont.timestamp = _recent_contacts_queue->buf[_last_added_index]->timestamp;
 
             // if a new recent contact has been added, find the starting index for close contacts search 
             if (_last_added_cont.timestamp != last_checked_timestamp) {
 
-                int _start_index = recent_contacts_queue->head;
+                int _start_index = _recent_contacts_queue->head;
 
                 for (int i = _last_added_index; ; i--) {
 
@@ -185,14 +193,14 @@ void *cl_cont(void *arg)
                         i = QUEUESIZE - 1;
                     }
 
-                    if (_last_added_cont.timestamp - recent_contacts_queue->buf[i]->timestamp > MAX_CLOSE_CONTACT_TIME) {
+                    if (_last_added_cont.timestamp - _recent_contacts_queue->buf[i]->timestamp > MAX_CLOSE_CONTACT_TIME) {
                         break;
                     }
                     else {
                         _start_index = i;
                     }
 
-                    if (i == recent_contacts_queue->head) {
+                    if (i == _recent_contacts_queue->head) {
                         break;
                     }
                 }
@@ -208,16 +216,16 @@ void *cl_cont(void *arg)
                         break;
                     }
 
-                    if (_last_added_cont.timestamp - recent_contacts_queue->buf[i]->timestamp < MIN_CLOSE_CONTACT_TIME) {
+                    if (_last_added_cont.timestamp - _recent_contacts_queue->buf[i]->timestamp < MIN_CLOSE_CONTACT_TIME) {
                         break;
                     }
 
-                    if (recent_contacts_queue->buf[i]->macaddress == _last_added_cont.macaddress) {
+                    if (_recent_contacts_queue->buf[i]->macaddress == _last_added_cont.macaddress) {
                         // add close contact
                         contact *_close_contact = (contact *)malloc(sizeof(contact));
                         _close_contact->macaddress = _last_added_cont.macaddress;
                         _close_contact->timestamp = _last_added_cont.timestamp;
-                        queueAdd(close_contacts_queue, _close_contact);
+                        queueAdd(_close_contacts_queue, _close_contact);
                     }
                 }
 

@@ -1,3 +1,7 @@
+/* -------------------------------------------------------------------------- */
+/*                                 headers.hpp                                */
+/* -------------------------------------------------------------------------- */
+
 #ifndef __HEADERS_HPP__
 #define __HEADERS_HPP__
 
@@ -30,17 +34,10 @@ struct arg_struct
 {
     double *arg1;
     double *arg2;
+    queue *arg3;
+    queue *arg4;
+    FILE *arg5;
 };
-
-/* ----------------------- initialize global variables ---------------------- */
-std::vector<contact> recent_contacts;
-std::vector<contact> close_contacts;
-// double t0 = -1;
-// double cur_t = -1;
-FILE *fptr;
-
-queue *recent_contacts_queue;
-queue *close_contacts_queue;
 
 /* ---------------------------- declare functions --------------------------- */
 queue *queueInit();
