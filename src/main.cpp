@@ -83,20 +83,27 @@ int main()
     pthread_join(cl_cont_thread, NULL);
 
     /* ------------------------------ print vectors ----------------------------- */
-    std::cout << "\nrecent_contacts\n\n";
+    std::cout << "\nrecent_contacts:\n\n";
     for (int i = 0; i < recent_contacts.size(); i++) {
         std::cout << "MAC Address: " << recent_contacts[i].macaddress << "\t" << "Timestamp: " << recent_contacts[i].timestamp << std::endl;
     }
 
-    std::cout << "\nclose_contacts\n\n";
+    std::cout << "\nclose_contacts:\n\n";
     for (int i = 0; i < close_contacts.size(); i++) {
         std::cout << "MAC Address: " << close_contacts[i].macaddress << "\t" << "Timestamp: " << close_contacts[i].timestamp << std::endl;
     }
 
+    printf("\nrecent_contacts_queue:\n\n");
     cont_prt(recent_contacts_queue);
+
+    printf("\nclose_contacts_queue:\n\n");
+    cont_prt(close_contacts_queue);
 
     /* ------------------------------- free memory ------------------------------ */
     queueDelete(recent_contacts_queue);
+    queueDelete(close_contacts_queue);
+
+    // TODO free malloc
 
     return 0;
 }

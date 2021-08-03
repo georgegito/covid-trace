@@ -79,11 +79,11 @@ queue *queueInit()
   q->full = 0;
   q->head = 0;
   q->tail = 0;
-  q->mut = (pthread_mutex_t *)malloc(sizeof (pthread_mutex_t));
+  q->mut = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
   pthread_mutex_init(q->mut, NULL);
-  q->notFull = (pthread_cond_t *) malloc (sizeof (pthread_cond_t));
+  q->notFull = (pthread_cond_t *)malloc(sizeof(pthread_cond_t));
   pthread_cond_init(q->notFull, NULL);
-  q->notEmpty = (pthread_cond_t *) malloc (sizeof (pthread_cond_t));
+  q->notEmpty = (pthread_cond_t *)malloc(sizeof(pthread_cond_t));
   pthread_cond_init(q->notEmpty, NULL);
 
   return (q);

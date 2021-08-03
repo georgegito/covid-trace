@@ -3,13 +3,13 @@
 
 #define SEARCH_TIME 2 // seconds
 #define TEST_TIME 2 // seconds
-#define DEL_TIME 6 // seconds
+#define DEL_TIME 5 // seconds
 #define NUM_OF_ADDRESSES 3
 #define MIN_CLOSE_CONTACT_TIME 1 // seconds
 #define MAX_CLOSE_CONTACT_TIME 5 // seconds
 #define POS_TEST_PROP 25 // %, must divide 100
 #define END_TIME 15 // seconds
-#define CLOSE_DEL_TIME 20 // seconds
+#define CLOSE_DEL_TIME 4 // seconds
 #define QUEUESIZE (DEL_TIME / SEARCH_TIME + 1)
 
 typedef struct contact
