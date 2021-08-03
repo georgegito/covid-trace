@@ -79,6 +79,7 @@ queue *queueInit()
   q->full = 0;
   q->head = 0;
   q->tail = 0;
+  q->lastAddIndex = -1;
   q->mut = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
   pthread_mutex_init(q->mut, NULL);
   q->notFull = (pthread_cond_t *)malloc(sizeof(pthread_cond_t));
@@ -106,6 +107,7 @@ void queueAdd(queue *q,  contact *in)
     printf("Warning! Queue is full! \n");
 
   q->buf[q->tail] = in;
+  q->lastAddIndex = q->tail;
   q->tail++;
 
   if (q->tail == QUEUESIZE)

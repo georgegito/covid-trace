@@ -1,38 +1,10 @@
-typedef struct cont
-{
-    contact var1;
-    contact *var2;
-} cont;
-
-contact BTnearMe(double timestamp)
-{
-    contact _contact;
-    _contact.macaddress = rand() % NUM_OF_ADDRESSES;
-    _contact.timestamp = timestamp;
-
-    return _contact;
-}
-
-contact *BTnearMe2(double timestamp)
+contact *BTnearMe(double timestamp)
 {
     contact *_contact = (contact *)malloc(sizeof(contact));
     _contact->macaddress = rand() % NUM_OF_ADDRESSES;
     _contact->timestamp = timestamp;
 
     return _contact;
-}
-
-cont* BTnearMe3(double timestamp)
-{
-    cont* _cont = (cont *)malloc(sizeof(cont));
-    _cont->var2 = (contact *)malloc(sizeof(contact));
-
-    _cont->var1.macaddress = rand() % NUM_OF_ADDRESSES;
-    _cont->var2->macaddress = _cont->var1.macaddress;
-    _cont->var1.timestamp = timestamp;
-    _cont->var2->timestamp = timestamp;
-
-    return _cont;
 }
 
 bool testCOVID() // positive result propability: POS_TEST_PROP %
@@ -98,62 +70,6 @@ void *timer(void *arg)
     return (NULL);
 }
 
-void *search(void *arg)
-{
-    struct arg_struct *args = (struct arg_struct*)arg;
-    double *_t0 = args->arg1;
-    double *_cur_t = args->arg2;
-
-    // first search
-    cont *temp_cont = (cont *)malloc(sizeof(cont)); 
-    
-    temp_cont = BTnearMe3(*_cur_t);
-
-    recent_contacts.push_back(temp_cont->var1);
-
-    pthread_mutex_lock(recent_contacts_queue->mut);
-    queueAdd(recent_contacts_queue, temp_cont->var2);
-    pthread_mutex_unlock(recent_contacts_queue->mut);
-
-/* -------------------------------------------------------------------------- */
-
-    // recent_contacts.push_back(BTnearMe(*_cur_t));
-
-    // pthread_mutex_lock(recent_contacts_queue->mut);
-    // queueAdd(recent_contacts_queue, BTnearMe2(*_cur_t));
-    // pthread_mutex_unlock(recent_contacts_queue->mut);
-
-/* -------------------------------------------------------------------------- */
-
-
-    // search every SEARCH_TIME seconds
-    while (1) {
-        usleep(SEARCH_TIME * 1000000);
-
-        if (*_cur_t > END_TIME) break;
-
-        temp_cont = BTnearMe3(*_cur_t);
-
-        recent_contacts.push_back(temp_cont->var1);
-
-        pthread_mutex_lock(recent_contacts_queue->mut);
-        queueAdd(recent_contacts_queue, temp_cont->var2);
-        pthread_mutex_unlock(recent_contacts_queue->mut);
-
-/* -------------------------------------------------------------------------- */
-
-        // recent_contacts.push_back(BTnearMe(*_cur_t));
-
-        // pthread_mutex_lock(recent_contacts_queue->mut);
-        // queueAdd(recent_contacts_queue, BTnearMe2(*_cur_t));
-        // pthread_mutex_unlock(recent_contacts_queue->mut);
-
-/* -------------------------------------------------------------------------- */
-    }
-
-    return (NULL);
-}
-
 void *test(void *arg)
 {
     struct arg_struct *args = (struct arg_struct*)arg;
@@ -183,37 +99,40 @@ void *test(void *arg)
     return (NULL);
 }
 
-void *del(void *arg)
+void *rec_cont(void *arg) // TODO will be renamed to rec_cont
 {
     struct arg_struct *args = (struct arg_struct*)arg;
     double *_t0 = args->arg1;
     double *_cur_t = args->arg2;
 
+    // first add
+    queueAdd(recent_contacts_queue, BTnearMe(*_cur_t));
+
+    // search every SEARCH_TIME seconds
     while (1) {
-        usleep(500000);
+        usleep(SEARCH_TIME * 1000000);
 
         if (*_cur_t > END_TIME) break;
 
-/* ---------------------- vector way - will be deleted ---------------------- */
-
-        if (recent_contacts.size() > 0) {
-            if (*_cur_t - recent_contacts[0].timestamp > DEL_TIME)
-                recent_contacts.erase(recent_contacts.begin()); // TODO change data structure & use mutex
-        }
-
-/* ---------------------------- static queue way ---------------------------- */
-
+    /* -------------------------------------------------------------------------- */
+    /*                                pop contacts                                */
+    /* -------------------------------------------------------------------------- */
+    
         if (!recent_contacts_queue->empty) {
 
             if (*_cur_t - recent_contacts_queue->buf[recent_contacts_queue->head]->timestamp > DEL_TIME) {
 
-                pthread_mutex_lock(recent_contacts_queue->mut);
+                // pthread_mutex_lock(recent_contacts_queue->mut);
                 queueDel(recent_contacts_queue);
-                pthread_mutex_unlock(recent_contacts_queue->mut);
+                // pthread_mutex_unlock(recent_contacts_queue->mut);
             }
         }
 
-/* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+    /*                                add contacts                                */
+    /* -------------------------------------------------------------------------- */
+
+        queueAdd(recent_contacts_queue, BTnearMe(*_cur_t));
     }
 
     return (NULL);
@@ -225,161 +144,87 @@ void *cl_cont(void *arg)
     double *_t0 = args->arg1;
     double *_cur_t = args->arg2;
 
-//     while (1) {
-//         usleep(500000);
+    double last_checked_timestamp = -1;
 
-//         if (*_cur_t > END_TIME) break;
+    while (1) {
+        usleep(500000);
 
-// /* ---------------------- vector way - will be deleted ---------------------- */
+        if (*_cur_t > END_TIME) break;
 
-//         if (close_contacts.size() > 0) {
-//             if (*_cur_t - close_contacts[0].timestamp > CLOSE_DEL_TIME)
-//                 close_contacts.erase(close_contacts.begin()); // TODO change data structure & use mutex
-//         }
+    /* -------------------------------------------------------------------------- */
+    /*                                pop contacts                                */
+    /* -------------------------------------------------------------------------- */
 
-// /* ---------------------------- static queue way ---------------------------- */
-// // TODO
-//         // if (!close_contacts_queue->empty) {
+        if (!close_contacts_queue->empty) {
 
-//         //     int i = close_contacts_queue->head;
-//         //     do {
-//         //         // std::cout << "i = " << i << "\tclose_contacts_queue->head = " << close_contacts_queue->head << "\tclose_contacts_queue->tail = " << close_contacts_queue->tail << std::endl;
-//         //             if (i == QUEUESIZE) {
-//         //                 i = 0; 
-//         //                 if (i == close_contacts_queue->tail)
-//         //                     break;
-//         //             }
+            if (*_cur_t - close_contacts_queue->buf[close_contacts_queue->head]->timestamp > CLOSE_DEL_TIME) {
 
-//         //             if (*_cur_t - close_contacts_queue->buf[i]->timestamp > CLOSE_DEL_TIME && close_contacts_queue->buf[i]->macaddress != 99) {
-//         //                 close_contacts_queue->buf[i]->macaddress = 99;
-//         //                 // std::cout << close_contacts_queue->buf[i]->timestamp << std::endl;
-//         //             }
-//         //                 // TODO queue_erase
+                queueDel(close_contacts_queue);
+            }
+        }
 
-//         //         i++;
-//         //     } while (i != close_contacts_queue->tail);
+    /* -------------------------------------------------------------------------- */
+    /*                                add contacts                                */
+    /* -------------------------------------------------------------------------- */
 
-//         //     // if (*_cur_t - close_contacts_queue->buf[recent_contacts_queue->head]->timestamp > CLOSE_DEL_TIME) {
-//         //     //     // pthread_mutex_lock(close_contacts_queue->mut); // mutex is not needed
-//         //     //     queueDel(close_contacts_queue);
-//         //     //     // pthread_mutex_unlock(close_contacts_queue->mut);
-//         //     // }
-//         // }
+        if (!recent_contacts_queue->empty) {
 
-// /* ---------------------- vector way - will be deleted ---------------------- */
+            int _last_added_index = recent_contacts_queue->lastAddIndex;
+            contact _last_added_cont;
+            _last_added_cont.macaddress = recent_contacts_queue->buf[_last_added_index]->macaddress;
+            _last_added_cont.timestamp = recent_contacts_queue->buf[_last_added_index]->timestamp;
 
-//         // for (int i = 0; i < recent_contacts.size() - 1; i++) {
-//         //     for (int j = i + 1; j < recent_contacts.size(); j++) {
+            // if a new recent contact has been added, find the starting index for close contacts search 
+            if (_last_added_cont.timestamp != last_checked_timestamp) {
 
-//         //         if (recent_contacts[i].macaddress == recent_contacts[j]. macaddress) {
+                int _start_index = recent_contacts_queue->head;
 
-//         //             double dt = recent_contacts[j].timestamp - recent_contacts[i].timestamp;
-                    
-//         //             if (dt < 0) {
-//         //                 std::cout << "ERROR\n";
-//         //                 return (NULL);
-//         //             }
-                    
-//         //             if (dt <= MAX_CLOSE_CONTACT_TIME && dt >= MIN_CLOSE_CONTACT_TIME) {
-                        
-//         //                 std::cout << "Hi Git 1\n";
-                        
-//         //                 double mean_timestamp = (recent_contacts[i].timestamp + recent_contacts[j].timestamp) / 2;
+                for (int i = _last_added_index; ; i--) {
 
-//         //                 contact _close_contact;
-//         //                 _close_contact.macaddress = recent_contacts[i].macaddress;
-//         //                 _close_contact.timestamp = mean_timestamp;
+                    if (i < 0) {
+                        i = QUEUESIZE - 1;
+                    }
 
-//         //                 // delete duplicate close contacts
-//         //                 for (int k = 0; k < close_contacts.size(); k++) {
-//         //                     if (_close_contact.macaddress == close_contacts[k].macaddress) {
-//         //                         close_contacts.erase(close_contacts.begin() + k);
-//         //                     }
-//         //                 }
+                    if (_last_added_cont.timestamp - recent_contacts_queue->buf[i]->timestamp > MAX_CLOSE_CONTACT_TIME) {
+                        break;
+                    }
+                    else {
+                        _start_index = i;
+                    }
 
-//         //                 // add new close contact
-//         //                 close_contacts.push_back(_close_contact);
-//         //             }
-//         //         }
-//         //     }
-//         // }
+                    if (i == recent_contacts_queue->head) {
+                        break;
+                    }
+                }
 
-// /* ---------------------------- static queue way ---------------------------- */
+                // check close contacts of last added contact
+                for (int i = _start_index; ; i++) {
 
-//         bool broken = false;
-//         if (!recent_contacts_queue->empty) {
-//             for (int i = recent_contacts_queue->head; ; i++) {
+                    if (i == QUEUESIZE) {
+                        i = 0;
+                    }
 
-//                 if (i == QUEUESIZE)
-//                     i = 0;
+                    if (i == _last_added_index) {
+                        break;
+                    }
 
-//                 for (int j = i + 1; ; j++) {
+                    if (_last_added_cont.timestamp - recent_contacts_queue->buf[i]->timestamp < MIN_CLOSE_CONTACT_TIME) {
+                        break;
+                    }
 
-//                     if (j == QUEUESIZE)
-//                         j = 0;
+                    if (recent_contacts_queue->buf[i]->macaddress == _last_added_cont.macaddress) {
+                        // add close contact
+                        contact *_close_contact = (contact *)malloc(sizeof(contact));
+                        _close_contact->macaddress = _last_added_cont.macaddress;
+                        _close_contact->timestamp = _last_added_cont.timestamp;
+                        queueAdd(close_contacts_queue, _close_contact);
+                    }
+                }
 
-//                     if (j == recent_contacts_queue->tail) {
-
-//                         if (i == j - 1 || (j == 0 && i == QUEUESIZE - 1))
-//                             broken = true;
-//                         break;
-//                     }
-
-//                     if (recent_contacts_queue->buf[i]->macaddress == recent_contacts_queue->buf[j]->macaddress) {
-
-//                         double dt = recent_contacts_queue->buf[j]->timestamp - recent_contacts_queue->buf[i]->timestamp;
-
-//                         if (dt < 0) {
-//                             std::cout << "ERROR\n";
-//                             return (NULL);
-//                         }
-
-//                         if (dt <= MAX_CLOSE_CONTACT_TIME && dt >= MIN_CLOSE_CONTACT_TIME) {
-
-//                             double mean_timestamp = (recent_contacts_queue->buf[i]->timestamp + recent_contacts_queue->buf[j]->timestamp) / 2; 
-                            
-//                             contact *_close_contact = (contact *)malloc(sizeof(contact));
-//                             _close_contact->macaddress = recent_contacts_queue->buf[i]->macaddress;
-//                             _close_contact->timestamp = mean_timestamp;
-
-//                             // avoid duplicate close contacts by replacing timestamp in existing close contacts
-//                             bool added = false;
-//                             if (!close_contacts_queue->empty) {
-
-//                                 int k = close_contacts_queue->head;
-//                                 do {
-//                                         if (k == QUEUESIZE) {
-//                                             k = 0;
-//                                             if (k == close_contacts_queue->tail)
-//                                                 break;
-//                                         }
-
-//                                         if (_close_contact->macaddress == close_contacts_queue->buf[k]->macaddress) {
-//                                             close_contacts_queue->buf[k]->timestamp = mean_timestamp; // TODO
-//                                             added = true;
-//                                             // std::cout << "Existing close contact timestamp renewed\n";
-//                                         }
-//                                         k++;
-//                                 } while (k != close_contacts_queue->tail);
-//                             }
-//                             // add new close contact if it does not already exist
-//                             if (!added) {
-//                                 // pthread_mutex_lock(close_contacts_queue->mut); // mutex is not needed
-//                                 queueAdd(close_contacts_queue, _close_contact);
-//                                 // pthread_mutex_unlock(close_contacts_queue->mut);
-//                                 // std::cout << "Close contact added\n";
-//                             }
-//                         }
-//                     }
-//                 }
-//                 if (broken)
-//                     break;
-//             }
-//         }
-
-
-// /* -------------------------------------------------------------------------- */
-//     }
+                last_checked_timestamp = _last_added_cont.timestamp;
+            }
+        }
+    }
 
     return (NULL);
 }

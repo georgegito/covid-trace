@@ -3,13 +3,13 @@
 
 #define SEARCH_TIME 2 // seconds
 #define TEST_TIME 2 // seconds
-#define DEL_TIME 5 // seconds
+#define DEL_TIME 30 // seconds
 #define NUM_OF_ADDRESSES 3
 #define MIN_CLOSE_CONTACT_TIME 1 // seconds
 #define MAX_CLOSE_CONTACT_TIME 5 // seconds
 #define POS_TEST_PROP 25 // %, must divide 100
 #define END_TIME 15 // seconds
-#define CLOSE_DEL_TIME 4 // seconds
+#define CLOSE_DEL_TIME 20 // seconds
 #define QUEUESIZE (DEL_TIME / SEARCH_TIME + 1)
 
 typedef struct contact
@@ -21,7 +21,7 @@ typedef struct contact
 typedef struct {
   contact *buf[QUEUESIZE];
   long head, tail;
-  int full, empty;
+  int full, empty, lastAddIndex;
   pthread_mutex_t *mut;
   pthread_cond_t *notFull, *notEmpty;
 } queue;
@@ -48,14 +48,12 @@ void queueDelete(queue *q);
 void queueAdd(queue *q, contact *in);
 void queueDel(queue *q);
 
-contact BTnearMe(double timestamp);
-contact *BTnearMe2(double timestamp);
+contact *BTnearMe(double timestamp);
 bool testCOVID();
 void uploadContacts(double cur_t);
 void *timer(void *arg);
-void *search(void *arg);
 void *test(void *arg);
-void *del(void *arg);
+void *rec_cont(void *arg);
 void *cl_cont(void *arg);
 void cont_prt(queue *q);
 

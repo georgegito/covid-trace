@@ -38,20 +38,12 @@ int main()
 
     /* ----------------------------- create threads ----------------------------- */
     pthread_t timer_thread;
-    pthread_t search_thread;
     pthread_t test_thread;
-    pthread_t del_thread;
+    pthread_t rec_cont_thread;
     pthread_t cl_cont_thread;
     int rc;
 
     rc = pthread_create(&timer_thread, NULL, timer, (void *)args);
-    if (rc) {
-        printf("Error: return code from pthread_create() is %d\n", rc);
-        exit(-1);
-    }
-
-    rc = pthread_create(&search_thread, NULL, search, (void *)args);
-    // usleep(100000);
     if (rc) {
         printf("Error: return code from pthread_create() is %d\n", rc);
         exit(-1);
@@ -63,7 +55,8 @@ int main()
         exit(-1);
     }
 
-    rc = pthread_create(&del_thread, NULL, del, (void *)args);
+    rc = pthread_create(&rec_cont_thread, NULL, rec_cont, (void *)args);
+    // usleep(100000);
     if (rc) {
         printf("Error: return code from pthread_create() is %d\n", rc);
         exit(-1);
@@ -76,23 +69,12 @@ int main()
     }
 
     /* ------------------------------ sync threads ------------------------------ */
-    pthread_join(timer_thread, NULL);    
-    pthread_join(search_thread, NULL);
+    pthread_join(timer_thread, NULL);
     pthread_join(test_thread, NULL);
-    pthread_join(del_thread, NULL);
+    pthread_join(rec_cont_thread, NULL);
     pthread_join(cl_cont_thread, NULL);
 
-    /* ------------------------------ print vectors ----------------------------- */
-    std::cout << "\nrecent_contacts:\n\n";
-    for (int i = 0; i < recent_contacts.size(); i++) {
-        std::cout << "MAC Address: " << recent_contacts[i].macaddress << "\t" << "Timestamp: " << recent_contacts[i].timestamp << std::endl;
-    }
-
-    std::cout << "\nclose_contacts:\n\n";
-    for (int i = 0; i < close_contacts.size(); i++) {
-        std::cout << "MAC Address: " << close_contacts[i].macaddress << "\t" << "Timestamp: " << close_contacts[i].timestamp << std::endl;
-    }
-
+    /* ----------------------------- print contacts ----------------------------- */
     printf("\nrecent_contacts_queue:\n\n");
     cont_prt(recent_contacts_queue);
 
