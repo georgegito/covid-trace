@@ -26,28 +26,35 @@ bool test_covid() // positive result propability: POS_TEST_PROP %
     }
 }
 
-void upload_contacts(double cur_t, FILE* fptr, queue* close_contacts_queue)
+void upload_contacts(double cur_t, FILE** fptr, queue* close_contacts_queue)
 {
     if (close_contacts_queue->empty == 1) {
         return;
     }
 
-    // open file for appending binary
-    fptr = fopen("close_contacts.bin", "ab");
-    if (fptr == NULL) {
+    int num_of_up_conts = 0;
+    size_t elements_written;
+
+    // open files for appending binary
+    fptr[0] = fopen("close_contacts.bin", "ab");
+    fptr[1] = fopen("upload_times.bin", "ab");
+    fptr[2] = fopen("contacts_nums.bin", "ab");
+
+    if (fptr[0] == NULL || fptr[1] == NULL || fptr[2] == NULL) {
         printf("Error!");
         exit(1);
     }
 
-    // // append upload time to the file
-    // size_t elements_written = fwrite(&cur_t, sizeof(double), 1, fptr);
-    // if (elements_written == 0) {
-    //     printf("Error!");
-    //     fclose(fptr);
-    //     exit(1);
-    // }
+    // append upload time to upload_times.bin file
+    elements_written = fwrite(&cur_t, sizeof(double), 1, fptr[1]);
+    if (elements_written == 0) {
+        printf("Error!");
+        fclose(fptr[0]);
+        fclose(fptr[1]);
+        fclose(fptr[2]);
+        exit(1);
+    }
 
-    // append close contacts to the file
     int i = close_contacts_queue->head;
     do {
         if (i == close_contacts_queue->bufSize) {
@@ -56,17 +63,32 @@ void upload_contacts(double cur_t, FILE* fptr, queue* close_contacts_queue)
                 break;
         }
 
-        size_t elements_written = fwrite(close_contacts_queue->buf[i], sizeof(contact), 1, fptr);
+        // append close contacts to close_contacts.bin file
+        elements_written = fwrite(close_contacts_queue->buf[i], sizeof(contact), 1, fptr[0]);
         if (elements_written == 0) {
             printf("Error!");
-            fclose(fptr);
+            fclose(fptr[0]);
+            fclose(fptr[1]);
+            fclose(fptr[2]);
             exit(1);
         }
-
+        num_of_up_conts++;
         i++;
     } while (i != close_contacts_queue->tail);
 
-    fclose(fptr);
+    // append number of uploaded contacts in contacts_nums.bin
+    elements_written = fwrite(&num_of_up_conts, sizeof(int), 1, fptr[2]);
+    if (elements_written == 0) {
+        printf("Error!");
+        fclose(fptr[0]);
+        fclose(fptr[1]);
+        fclose(fptr[2]);
+        exit(1);
+    }
+
+    fclose(fptr[0]);
+    fclose(fptr[1]);
+    fclose(fptr[2]);
 
     return;
 }
@@ -102,15 +124,23 @@ void* test(void* arg)
     double* _t0 = args->arg1;
     double* _cur_t = args->arg2;
     queue* _close_contacts_queue = args->arg4;
-    FILE* _fptr = args->arg5;
+    FILE** _fptr = args->arg5;
 
-    _fptr = fopen("close_contacts.bin", "wb");
-    if (_fptr == NULL) {
+    /* ------------------------------ create files ------------------------------ */
+    _fptr[0] = fopen("close_contacts.bin", "wb");
+    _fptr[1] = fopen("upload_times.bin", "wb");
+    _fptr[2] = fopen("contacts_nums.bin", "wb");
+
+    if (_fptr[0] == NULL || _fptr[1] == NULL || _fptr[2] == NULL) {
         printf("Error!");
         exit(1);
+
     }
-    // _fptr = fopen("close_contacts.txt", "w");
-    fclose(_fptr);
+    fclose(_fptr[0]);
+    fclose(_fptr[1]);
+    fclose(_fptr[2]);
+
+    /* -------------------------------------------------------------------------- */
 
     // first test
     if (test_covid()) {

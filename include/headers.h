@@ -39,7 +39,7 @@ struct arg_struct
   double* arg2;
   queue* arg3;
   queue* arg4;
-  FILE* arg5;
+  FILE** arg5;
 };
 
 /* ---------------------------- declare functions --------------------------- */
@@ -50,14 +50,14 @@ void queue_del(queue* q);
 
 contact* bt_near_me(double timestamp);
 bool test_covid();
-void upload_contacts(double cur_t, FILE* fptr, queue* close_contacts_queue);
+void upload_contacts(double cur_t, FILE** fptr, queue* close_contacts_queue);
 void* timer(void* arg);
 void* test(void* arg);
 void* rec_cont(void* arg);
 void* cl_cont(void* arg);
 void cont_prt(queue* q);
 int bin_file_size(const char* filename);
-void read_bin(const char* filename);
+void read_bin();
 
 /* -------------------------------------------------------------------------- */
 

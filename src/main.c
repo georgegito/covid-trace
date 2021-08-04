@@ -36,7 +36,9 @@ int main()
     close_contacts_queue = queue_init(CLOSE_QUEUESIZE);
 
     /* --------------------------- create output file --------------------------- */
-    FILE* fptr;
+    FILE* fptr1;
+    FILE* fptr2;
+    FILE* fptr3;
 
     /* ------------------------ intialize argument struct ----------------------- */
     struct arg_struct* args = (struct arg_struct*)malloc(sizeof(struct arg_struct));
@@ -44,7 +46,10 @@ int main()
     args->arg2 = &cur_t;
     args->arg3 = recent_contacts_queue;
     args->arg4 = close_contacts_queue;
-    args->arg5 = fptr;
+    args->arg5 = (FILE**)malloc(3 * sizeof(FILE*));
+    args->arg5[0] = fptr1;
+    args->arg5[1] = fptr2;
+    args->arg5[2] = fptr3;
 
     /* ----------------------------- create threads ----------------------------- */
     pthread_t timer_thread;
@@ -92,7 +97,7 @@ int main()
     cont_prt(close_contacts_queue);
 
     printf("\nuploaded_contacts:\n\n");
-    read_bin("close_contacts.bin");
+    read_bin();
 
     /* ------------------------------- free memory ------------------------------ */
     for (int i = 0; i < recent_contacts_queue->bufSize; i++)
@@ -103,6 +108,12 @@ int main()
 
     queue_delete(recent_contacts_queue);
     queue_delete(close_contacts_queue);
+
+    free(fptr1);
+    free(fptr2);
+    free(fptr3);
+    free(args->arg5);
+    free(args);
 
     return 0;
 }

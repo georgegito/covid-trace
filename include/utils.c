@@ -24,11 +24,12 @@ void cont_prt(queue* q)
 }
 
 int bin_file_size(const char* filename)
+// returns the size of a binary file in bytes
 {
     FILE* fptr;
     int size;
 
-    fptr = fopen("close_contacts.bin", "rb");
+    fptr = fopen(filename, "rb");
     if (fptr == NULL) {
         printf("Error!");
         exit(1);
@@ -43,33 +44,70 @@ int bin_file_size(const char* filename)
     return size;
 }
 
-void read_bin(const char* filename)
+void read_bin()
 {
-    int size;
-    FILE* _fptr;
+    int num_of_uploads;
+    int num_of_up_conts;
+    FILE* _fptr1;
+    FILE* _fptr2;
+    FILE* _fptr3;
+    size_t elements_read;
 
-    size = bin_file_size(filename) / sizeof(contact);
-    _fptr = fopen(filename, "rb");
-    if (_fptr == NULL) {
+    num_of_uploads = bin_file_size("upload_times.bin") / sizeof(double);
+    num_of_up_conts = bin_file_size("close_contacts.bin") / sizeof(contact);
+
+    contact* uploaded_contacts = (contact*)malloc(num_of_up_conts * sizeof(contact));
+    double* upload_times = (double*)malloc(num_of_uploads * sizeof(double));
+    int* contacts_nums = (int*)malloc(num_of_uploads * sizeof(int));
+
+    _fptr1 = fopen("close_contacts.bin", "rb");
+    _fptr2 = fopen("upload_times.bin", "rb");
+    _fptr3 = fopen("contacts_nums.bin", "rb");
+
+    if (_fptr1 == NULL || _fptr2 == NULL || _fptr3 == NULL) {
         printf("Error!");
         exit(1);
     }
 
-    contact* uploaded_contacts = (contact*)malloc(size * sizeof(contact));
-
-    size_t elements_read = fread(uploaded_contacts, sizeof(contact), size, _fptr);
-    if (elements_read != size) {
+    elements_read = fread(uploaded_contacts, sizeof(contact), num_of_up_conts, _fptr1);
+    if (elements_read != num_of_up_conts) {
         printf("Error!");
         exit(1);
     }
 
-    fclose(_fptr);
+    elements_read = fread(upload_times, sizeof(double), num_of_uploads, _fptr2);
+    if (elements_read != num_of_uploads) {
+        printf("Error!");
+        exit(1);
+    }
 
-    for (int i = 0; i < size; i++) {
-        printf("MAC Address: %lu\tTimestamp: %lf\n", (unsigned long)uploaded_contacts[i].macaddress, uploaded_contacts[i].timestamp);
+    elements_read = fread(contacts_nums, sizeof(int), num_of_uploads, _fptr3);
+    if (elements_read != num_of_uploads) {
+        printf("Error!");
+        exit(1);
+    }
+
+    fclose(_fptr1);
+    fclose(_fptr2);
+    fclose(_fptr3);
+
+    int _index = 0;
+    for (int i = 0; i < num_of_uploads; i++) {
+        printf("- Upload time: %lf\t Contacts uploaded: %d\n", upload_times[i], contacts_nums[i]);
+        for (int j = 0; j < contacts_nums[i]; j++) {
+            printf("\tMAC Address: %lu\tTimestamp: %lf\n", (unsigned long)uploaded_contacts[_index].macaddress, uploaded_contacts[_index].timestamp);
+            _index++;
+        }
+    }
+
+    if (_index != num_of_up_conts) {
+        printf("Error!");
+        exit(2);
     }
 
     free(uploaded_contacts);
+    free(upload_times);
+    free(contacts_nums);
 
     return;
 }
