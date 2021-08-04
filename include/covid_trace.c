@@ -26,25 +26,39 @@ bool testCOVID() // positive result propability: POS_TEST_PROP %
     }
 }
 
-void uploadContacts(double cur_t)
+void uploadContacts(double cur_t, FILE* fptr, queue* close_contacts_queue)
 {
-    // // fptr = fopen("close_contacts.bin","ab+");
-    // fptr = fopen("close_contacts.txt","a+");
+    if (close_contacts_queue->empty == 1) {
+        return;
+    }
 
-    // if(fptr == NULL)
-    // {
-    //     printf("Error!");   
-    //     exit(1);             
-    // }
+    // open file for appending binary
+    fptr = fopen("close_contacts.bin", "ab");
+    if (fptr == NULL) {
+        printf("Error!");
+        exit(1);
+    }
 
-    // // write close contacts to file
-    // for (int i = 0; i < close_contacts.size(); i++) {
-    //     fprintf(fptr, "%ld\t%lf\t%lf\n", close_contacts[i].macaddress, close_contacts[i].timestamp, cur_t);
-    //     // fwrite(&close_contacts[i], sizeof(contact), 1, fptr);
-    //     // fwrite(&close_contacts[i].timestamp, sizeof(double), 1, fptr);
-    // }
+    // append close contacts to the file
+    int i = close_contacts_queue->head;
+    do {
+        if (i == close_contacts_queue->bufSize) {
+            i = 0;
+            if (i == close_contacts_queue->tail)
+                break;
+        }
 
-    // fclose(fptr);
+        size_t elements_written = fwrite(close_contacts_queue->buf[i], sizeof(contact), 1, fptr);
+        if (elements_written == 0) {
+            printf("Error!");
+            fclose(fptr);
+            exit(2);
+        }
+
+        i++;
+    } while (i != close_contacts_queue->tail);
+
+    fclose(fptr);
 
     return;
 }
@@ -79,15 +93,22 @@ void* test(void* arg)
     struct arg_struct* args = (struct arg_struct*)arg;
     double* _t0 = args->arg1;
     double* _cur_t = args->arg2;
+    queue* _close_contacts_queue = args->arg4;
     FILE* _fptr = args->arg5;
 
-    // fptr = fopen("close_contacts.bin","wb");
-    _fptr = fopen("close_contacts.txt", "w");
+    _fptr = fopen("close_contacts.bin", "wb");
+    if (_fptr == NULL) {
+        printf("Error!");
+        exit(1);
+    }
+    // _fptr = fopen("close_contacts.txt", "w");
     fclose(_fptr);
 
     // first test
-    if (testCOVID())
-        uploadContacts(*_cur_t);
+    if (testCOVID()) {
+        printf("Positive test (time: %lf)\n", *_cur_t);
+        uploadContacts(*_cur_t, _fptr, _close_contacts_queue);
+    }
 
     // test every TEST_TIME seconds
     while (1) {
@@ -95,10 +116,10 @@ void* test(void* arg)
 
         if (*_cur_t > END_TIME) break;
 
-        if (testCOVID())
-            uploadContacts(*_cur_t);
-
-        // printf("Test time: %lf\n", *_cur_t);
+        if (testCOVID()) {
+            printf("Positive test (time: %lf)\n", *_cur_t);
+            uploadContacts(*_cur_t, _fptr, _close_contacts_queue);
+        }
     }
 
     return (NULL);
