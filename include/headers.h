@@ -56,6 +56,8 @@ void* test(void* arg);
 void* rec_cont(void* arg);
 void* cl_cont(void* arg);
 void cont_prt(queue* q);
+int bin_file_size(const char* filename);
+void read_bin(const char* filename);
 
 /* -------------------------------------------------------------------------- */
 

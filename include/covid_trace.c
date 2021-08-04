@@ -39,6 +39,14 @@ void uploadContacts(double cur_t, FILE* fptr, queue* close_contacts_queue)
         exit(1);
     }
 
+    // // append upload time to the file
+    // size_t elements_written = fwrite(&cur_t, sizeof(double), 1, fptr);
+    // if (elements_written == 0) {
+    //     printf("Error!");
+    //     fclose(fptr);
+    //     exit(1);
+    // }
+
     // append close contacts to the file
     int i = close_contacts_queue->head;
     do {
@@ -52,7 +60,7 @@ void uploadContacts(double cur_t, FILE* fptr, queue* close_contacts_queue)
         if (elements_written == 0) {
             printf("Error!");
             fclose(fptr);
-            exit(2);
+            exit(1);
         }
 
         i++;
@@ -256,25 +264,4 @@ void* cl_cont(void* arg)
     }
 
     return (NULL);
-}
-
-void cont_prt(queue* q)
-{
-    if (q->empty == 1) {
-
-        printf("No contacts\n");
-        return;
-    }
-
-    int i = q->head;
-    do {
-        if (i == q->bufSize) {
-            i = 0;
-            if (i == q->tail)
-                break;
-        }
-
-        printf("MAC Address: %lu\tTimestamp: %lf\n", (unsigned long)q->buf[i]->macaddress, q->buf[i]->timestamp);
-        i++;
-    } while (i != q->tail);
 }

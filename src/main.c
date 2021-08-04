@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <headers.h>
 #include <covid_trace.c>
+#include <utils.c>
 #include <queue.c>
 
 int main()
@@ -89,6 +90,9 @@ int main()
 
     printf("\nclose_contacts_queue:\n\n");
     cont_prt(close_contacts_queue);
+
+    printf("\nuploaded_contacts:\n\n");
+    read_bin("close_contacts.bin");
 
     /* ------------------------------- free memory ------------------------------ */
     for (int i = 0; i < recent_contacts_queue->bufSize; i++)
