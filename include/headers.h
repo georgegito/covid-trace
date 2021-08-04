@@ -43,14 +43,14 @@ struct arg_struct
 };
 
 /* ---------------------------- declare functions --------------------------- */
-queue* queueInit(int bufSize);
-void queueDelete(queue* q);
-void queueAdd(queue* q, contact* in);
-void queueDel(queue* q);
+queue* queue_init(int bufSize);
+void queue_delete(queue* q);
+void queue_add(queue* q, contact* in);
+void queue_del(queue* q);
 
-contact* BTnearMe(double timestamp);
-bool testCOVID();
-void uploadContacts(double cur_t, FILE* fptr, queue* close_contacts_queue);
+contact* bt_near_me(double timestamp);
+bool test_covid();
+void upload_contacts(double cur_t, FILE* fptr, queue* close_contacts_queue);
 void* timer(void* arg);
 void* test(void* arg);
 void* rec_cont(void* arg);

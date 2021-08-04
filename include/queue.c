@@ -2,7 +2,7 @@
 /*                                   queue.c                                  */
 /* -------------------------------------------------------------------------- */
 
-queue* queueInit(int bufSize)
+queue* queue_init(int bufSize)
 {
   queue* q;
 
@@ -26,7 +26,7 @@ queue* queueInit(int bufSize)
   return (q);
 }
 
-void queueDelete(queue* q)
+void queue_delete(queue* q)
 {
   free(q->buf);
   pthread_mutex_destroy(q->mut);
@@ -38,7 +38,7 @@ void queueDelete(queue* q)
   free(q);
 }
 
-void queueAdd(queue* q, contact* in)
+void queue_add(queue* q, contact* in)
 {
   if (q->full)
     printf("Warning! Queue is full! \n");
@@ -56,7 +56,7 @@ void queueAdd(queue* q, contact* in)
   return;
 }
 
-void queueDel(queue* q)
+void queue_del(queue* q)
 {
   q->head++;
   if (q->head == q->bufSize)

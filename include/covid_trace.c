@@ -2,7 +2,7 @@
 /*                                covid_trace.c                               */
 /* -------------------------------------------------------------------------- */
 
-contact* BTnearMe(double timestamp)
+contact* bt_near_me(double timestamp)
 {
     contact* _contact = (contact*)malloc(sizeof(contact));
     _contact->macaddress = rand() % NUM_OF_ADDRESSES;
@@ -11,7 +11,7 @@ contact* BTnearMe(double timestamp)
     return _contact;
 }
 
-bool testCOVID() // positive result propability: POS_TEST_PROP %
+bool test_covid() // positive result propability: POS_TEST_PROP %
 {
     int temp1 = 100 / POS_TEST_PROP;
     int temp2 = rand() % temp1;
@@ -26,7 +26,7 @@ bool testCOVID() // positive result propability: POS_TEST_PROP %
     }
 }
 
-void uploadContacts(double cur_t, FILE* fptr, queue* close_contacts_queue)
+void upload_contacts(double cur_t, FILE* fptr, queue* close_contacts_queue)
 {
     if (close_contacts_queue->empty == 1) {
         return;
@@ -113,9 +113,9 @@ void* test(void* arg)
     fclose(_fptr);
 
     // first test
-    if (testCOVID()) {
+    if (test_covid()) {
         printf("Positive test (time: %lf)\n", *_cur_t);
-        uploadContacts(*_cur_t, _fptr, _close_contacts_queue);
+        upload_contacts(*_cur_t, _fptr, _close_contacts_queue);
     }
 
     // test every TEST_TIME seconds
@@ -124,9 +124,9 @@ void* test(void* arg)
 
         if (*_cur_t > END_TIME) break;
 
-        if (testCOVID()) {
+        if (test_covid()) {
             printf("Positive test (time: %lf)\n", *_cur_t);
-            uploadContacts(*_cur_t, _fptr, _close_contacts_queue);
+            upload_contacts(*_cur_t, _fptr, _close_contacts_queue);
         }
     }
 
@@ -141,7 +141,7 @@ void* rec_cont(void* arg) // TODO will be renamed to rec_cont
     queue* _recent_contacts_queue = args->arg3;
 
     // first add
-    queueAdd(_recent_contacts_queue, BTnearMe(*_cur_t));
+    queue_add(_recent_contacts_queue, bt_near_me(*_cur_t));
 
     // search every SEARCH_TIME seconds
     while (1) {
@@ -158,7 +158,7 @@ void* rec_cont(void* arg) // TODO will be renamed to rec_cont
             if (*_cur_t - _recent_contacts_queue->buf[_recent_contacts_queue->head]->timestamp > RECENT_DEL_TIME) {
 
                 // pthread_mutex_lock(recent_contacts_queue->mut);
-                queueDel(_recent_contacts_queue);
+                queue_del(_recent_contacts_queue);
                 // pthread_mutex_unlock(recent_contacts_queue->mut);
             }
         }
@@ -167,7 +167,7 @@ void* rec_cont(void* arg) // TODO will be renamed to rec_cont
         /*                                add contacts                                */
         /* -------------------------------------------------------------------------- */
 
-        queueAdd(_recent_contacts_queue, BTnearMe(*_cur_t));
+        queue_add(_recent_contacts_queue, bt_near_me(*_cur_t));
     }
 
     return (NULL);
@@ -196,7 +196,7 @@ void* cl_cont(void* arg)
 
             if (*_cur_t - _close_contacts_queue->buf[_close_contacts_queue->head]->timestamp > CLOSE_DEL_TIME) {
 
-                queueDel(_close_contacts_queue);
+                queue_del(_close_contacts_queue);
             }
         }
 
@@ -254,7 +254,7 @@ void* cl_cont(void* arg)
                         contact* _close_contact = (contact*)malloc(sizeof(contact));
                         _close_contact->macaddress = _last_added_cont.macaddress;
                         _close_contact->timestamp = _last_added_cont.timestamp;
-                        queueAdd(_close_contacts_queue, _close_contact);
+                        queue_add(_close_contacts_queue, _close_contact);
                     }
                 }
 
