@@ -44,7 +44,7 @@ int bin_file_size(const char* filename)
     return size;
 }
 
-void read_bin()
+void read_cont_bin()
 {
     int num_of_uploads;
     int num_of_up_conts;
@@ -108,6 +108,40 @@ void read_bin()
     free(uploaded_contacts);
     free(upload_times);
     free(contacts_nums);
+
+    return;
+}
+
+void read_bt_search_times_bin()
+{
+    int num_of_bt_searches;
+    FILE* _fptr;
+    size_t elements_read;
+
+    num_of_bt_searches = bin_file_size("bt_search_times.bin") / sizeof(double);
+
+    double* bt_search_times = (double*)malloc(num_of_bt_searches * sizeof(double));
+
+    _fptr = fopen("bt_search_times.bin", "rb");
+
+    if (_fptr == NULL) {
+        printf("Error!");
+        exit(1);
+    }
+
+    elements_read = fread(bt_search_times, sizeof(double), num_of_bt_searches, _fptr);
+    if (elements_read != num_of_bt_searches) {
+        printf("Error!");
+        exit(1);
+    }
+
+    fclose(_fptr);
+
+    for (int i = 0; i < num_of_bt_searches; i++) {
+        printf("%lf\n", bt_search_times[i]);
+    }
+
+    free(bt_search_times);
 
     return;
 }

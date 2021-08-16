@@ -39,6 +39,7 @@ int main()
     FILE* fptr1 = (FILE*)malloc(sizeof(FILE));
     FILE* fptr2 = (FILE*)malloc(sizeof(FILE));
     FILE* fptr3 = (FILE*)malloc(sizeof(FILE));
+    FILE* fptr4 = (FILE*)malloc(sizeof(FILE));
 
     /* ------------------------ intialize argument struct ----------------------- */
     struct arg_struct* args = (struct arg_struct*)malloc(sizeof(struct arg_struct));
@@ -46,10 +47,11 @@ int main()
     args->arg2 = &cur_t;
     args->arg3 = recent_contacts_queue;
     args->arg4 = close_contacts_queue;
-    args->arg5 = (FILE**)malloc(3 * sizeof(FILE*));
+    args->arg5 = (FILE**)malloc(4 * sizeof(FILE*));
     args->arg5[0] = fptr1;
     args->arg5[1] = fptr2;
     args->arg5[2] = fptr3;
+    args->arg5[3] = fptr4;
 
     /* ----------------------------- create threads ----------------------------- */
     pthread_t timer_thread;
@@ -97,7 +99,12 @@ int main()
     cont_prt(close_contacts_queue);
 
     printf("\nuploaded_contacts:\n\n");
-    read_bin();
+    read_cont_bin();
+
+    /* -------------------------- print bt search times ------------------------- */
+
+    printf("\nbt_search_times:\n\n");
+    read_bt_search_times_bin();
 
     /* ------------------------------- free memory ------------------------------ */
     for (int i = 0; i < recent_contacts_queue->bufSize; i++)
@@ -112,6 +119,7 @@ int main()
     free(fptr1);
     free(fptr2);
     free(fptr3);
+    free(fptr4);
     free(args->arg5);
     free(args);
 

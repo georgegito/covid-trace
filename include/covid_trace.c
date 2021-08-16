@@ -2,11 +2,33 @@
 /*                                covid_trace.c                               */
 /* -------------------------------------------------------------------------- */
 
-contact* bt_near_me(double timestamp)
+contact* bt_near_me(double timestamp, FILE* fptr)
 {
     contact* _contact = (contact*)malloc(sizeof(contact));
     _contact->macaddress = rand() % NUM_OF_ADDRESSES;
     _contact->timestamp = timestamp;
+    // printf("BT search time: %lf\n", timestamp);
+
+    /* ---------------------- write bt search time to file ---------------------- */
+    // open file for appending binary
+    fptr = fopen("bt_search_times.bin", "ab");
+
+    if (fptr == NULL) {
+        printf("Error!");
+        exit(1);
+    }
+
+    // append bt search time to bt_search_times.bin file
+    int elements_written = fwrite(&timestamp, sizeof(double), 1, fptr);
+    if (elements_written == 0) {
+        printf("Error!");
+        fclose(fptr);
+        exit(1);
+    }
+
+    fclose(fptr);
+
+    /* -------------------------------------------------------------------------- */
 
     return _contact;
 }
@@ -175,9 +197,21 @@ void* rec_cont(void* arg) // TODO will be renamed to rec_cont
     double* _t0 = args->arg1;
     double* _cur_t = args->arg2;
     queue* _recent_contacts_queue = args->arg3;
+    FILE* _fptr = args->arg5[3];
+
+    /* ------------------------ create bt search times file ------------------------ */
+    _fptr = fopen("bt_search_times.bin", "wb");
+
+    if (_fptr == NULL) {
+        printf("Error!");
+        exit(1);
+    }
+    fclose(_fptr);
+
+    /* -------------------------------------------------------------------------- */
 
     // first add
-    queue_add(_recent_contacts_queue, bt_near_me(*_cur_t));
+    queue_add(_recent_contacts_queue, bt_near_me(*_cur_t, _fptr));
 
     // search every SEARCH_TIME seconds
     while (1) {
@@ -203,7 +237,7 @@ void* rec_cont(void* arg) // TODO will be renamed to rec_cont
         /*                                add contacts                                */
         /* -------------------------------------------------------------------------- */
 
-        queue_add(_recent_contacts_queue, bt_near_me(*_cur_t));
+        queue_add(_recent_contacts_queue, bt_near_me(*_cur_t, _fptr));
     }
 
     return (NULL);

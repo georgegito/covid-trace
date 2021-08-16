@@ -5,7 +5,8 @@
 #ifndef __HEADERS_HPP__
 #define __HEADERS_HPP__
 
-#define SEARCH_TIME 5 // seconds
+// #define SEARCH_TIME 5 // seconds
+#define SEARCH_TIME 2
 #define TEST_TIME 10 // seconds
 #define RECENT_DEL_TIME 20 // seconds
 #define NUM_OF_ADDRESSES 10
@@ -13,14 +14,14 @@
 #define MAX_CLOSE_CONTACT_TIME 15 // seconds
 #define POS_TEST_PROP 20 // %, must divide 100
 // #define POS_TEST_PROP 50 
-#define END_TIME 900 // seconds
-// #define END_TIME 5
+// #define END_TIME 900 // seconds
+#define END_TIME 15
 #define CLOSE_DEL_TIME 60 // seconds
 #define RECENT_QUEUESIZE (RECENT_DEL_TIME / SEARCH_TIME + 1)
 #define CLOSE_QUEUESIZE ((CLOSE_DEL_TIME / SEARCH_TIME) * ((MAX_CLOSE_CONTACT_TIME - MIN_CLOSE_CONTACT_TIME) / SEARCH_TIME) + 1) // TODO check
 
 /* --------------------------------- structs -------------------------------- */
-typedef struct contact
+typedef struct
 {
   unsigned long long macaddress : 48;
   double timestamp;
@@ -50,7 +51,7 @@ void queue_delete(queue* q);
 void queue_add(queue* q, contact* in);
 void queue_del(queue* q);
 
-contact* bt_near_me(double timestamp);
+contact* bt_near_me(double timestamp, FILE* fptr);
 bool test_covid();
 void upload_contacts(double cur_t, FILE** fptr, queue* close_contacts_queue);
 void* timer(void* arg);
@@ -59,7 +60,8 @@ void* rec_cont(void* arg);
 void* cl_cont(void* arg);
 void cont_prt(queue* q);
 int bin_file_size(const char* filename);
-void read_bin();
+void read_cont_bin();
+void read_bt_search_times_bin();
 
 /* -------------------------------------------------------------------------- */
 
