@@ -36,9 +36,9 @@ int main()
     close_contacts_queue = queue_init(CLOSE_QUEUESIZE);
 
     /* --------------------------- create output file --------------------------- */
-    FILE* fptr1;
-    FILE* fptr2;
-    FILE* fptr3;
+    FILE* fptr1 = (FILE*)malloc(sizeof(FILE));
+    FILE* fptr2 = (FILE*)malloc(sizeof(FILE));
+    FILE* fptr3 = (FILE*)malloc(sizeof(FILE));
 
     /* ------------------------ intialize argument struct ----------------------- */
     struct arg_struct* args = (struct arg_struct*)malloc(sizeof(struct arg_struct));

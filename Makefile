@@ -14,3 +14,7 @@ compile:
 	$(CC) -o $(BUILD_DIR)/main -I$(INCLUDE_DIR) $(SOURCES) $(CFLAGS) -lpthread
 	./build/main
 	@printf "\n"
+
+pi:
+	arm-linux-gnueabihf-gcc $(SOURCES) -o $(BUILD_DIR)/main_pi -I$(INCLUDE_DIR) -lpthread
+	@printf "\n"

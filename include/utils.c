@@ -18,7 +18,7 @@ void cont_prt(queue* q)
                 break;
         }
 
-        printf("MAC Address: %lu\tTimestamp: %lf\n", (unsigned long)q->buf[i]->macaddress, q->buf[i]->timestamp);
+        printf("MAC Address: %llu\tTimestamp: %lf\n", (unsigned long long)q->buf[i]->macaddress, q->buf[i]->timestamp);
         i++;
     } while (i != q->tail);
 }
@@ -95,7 +95,7 @@ void read_bin()
     for (int i = 0; i < num_of_uploads; i++) {
         printf("- Upload time: %lf\t Contacts uploaded: %d\n", upload_times[i], contacts_nums[i]);
         for (int j = 0; j < contacts_nums[i]; j++) {
-            printf("\tMAC Address: %lu\tTimestamp: %lf\n", (unsigned long)uploaded_contacts[_index].macaddress, uploaded_contacts[_index].timestamp);
+            printf("\tMAC Address: %llu\tTimestamp: %lf\n", (unsigned long long)uploaded_contacts[_index].macaddress, uploaded_contacts[_index].timestamp);
             _index++;
         }
     }

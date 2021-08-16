@@ -144,8 +144,11 @@ void* test(void* arg)
 
     // first test
     if (test_covid()) {
-        printf("Positive test (time: %lf)\n", *_cur_t);
+        // printf("Positive test (time: %lf)\n", *_cur_t);
         upload_contacts(*_cur_t, _fptr, _close_contacts_queue);
+    }
+    else {
+        // printf("Negative test (time: %lf)\n", *_cur_t);
     }
 
     // test every TEST_TIME seconds
@@ -155,8 +158,11 @@ void* test(void* arg)
         if (*_cur_t > END_TIME) break;
 
         if (test_covid()) {
-            printf("Positive test (time: %lf)\n", *_cur_t);
+            // printf("Positive test (time: %lf)\n", *_cur_t);
             upload_contacts(*_cur_t, _fptr, _close_contacts_queue);
+        }
+        else {
+            // printf("Negative test (time: %lf)\n", *_cur_t);
         }
     }
 
