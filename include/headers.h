@@ -8,11 +8,11 @@
 #define SEARCH_TIME 10 // seconds
 #define TEST_TIME 4 * 60 * 60 / 100 // seconds
 #define RECENT_DEL_TIME 20 * 60 / 100 // seconds
-#define NUM_OF_ADDRESSES 10
+#define NUM_OF_ADDRESSES 30
 #define MIN_CLOSE_CONTACT_TIME 4 * 60 / 100 // seconds
 #define MAX_CLOSE_CONTACT_TIME 20 * 60 / 100 // seconds
-#define POS_TEST_PROP 20 // %, must divide 100
-#define END_TIME 1 * 60 * 60 // seconds
+#define POS_TEST_PROP 10 // %, must divide 100
+#define END_TIME 30 * 24 * 60 * 60 / 100 // seconds
 #define CLOSE_DEL_TIME 14 * 24 * 60 * 60 / 100 // seconds
 #define RECENT_QUEUESIZE (RECENT_DEL_TIME / SEARCH_TIME + 1)
 #define CLOSE_QUEUESIZE ((CLOSE_DEL_TIME / SEARCH_TIME) * ((MAX_CLOSE_CONTACT_TIME - MIN_CLOSE_CONTACT_TIME) / SEARCH_TIME) + 1) // TODO check
