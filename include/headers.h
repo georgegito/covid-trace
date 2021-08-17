@@ -5,18 +5,15 @@
 #ifndef __HEADERS_HPP__
 #define __HEADERS_HPP__
 
-// #define SEARCH_TIME 5 // seconds
-#define SEARCH_TIME 2
-#define TEST_TIME 10 // seconds
-#define RECENT_DEL_TIME 20 // seconds
+#define SEARCH_TIME 10 // seconds
+#define TEST_TIME 4 * 60 * 60 / 100 // seconds
+#define RECENT_DEL_TIME 20 * 60 / 100 // seconds
 #define NUM_OF_ADDRESSES 10
-#define MIN_CLOSE_CONTACT_TIME 2 // seconds
-#define MAX_CLOSE_CONTACT_TIME 15 // seconds
+#define MIN_CLOSE_CONTACT_TIME 4 * 60 / 100 // seconds
+#define MAX_CLOSE_CONTACT_TIME 20 * 60 / 100 // seconds
 #define POS_TEST_PROP 20 // %, must divide 100
-// #define POS_TEST_PROP 50 
-// #define END_TIME 900 // seconds
-#define END_TIME 15
-#define CLOSE_DEL_TIME 60 // seconds
+#define END_TIME 1 * 60 * 60 // seconds
+#define CLOSE_DEL_TIME 14 * 24 * 60 * 60 / 100 // seconds
 #define RECENT_QUEUESIZE (RECENT_DEL_TIME / SEARCH_TIME + 1)
 #define CLOSE_QUEUESIZE ((CLOSE_DEL_TIME / SEARCH_TIME) * ((MAX_CLOSE_CONTACT_TIME - MIN_CLOSE_CONTACT_TIME) / SEARCH_TIME) + 1) // TODO check
 
