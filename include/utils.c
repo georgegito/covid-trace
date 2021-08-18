@@ -53,16 +53,16 @@ void read_cont_bin()
     FILE* _fptr3;
     size_t elements_read;
 
-    num_of_uploads = bin_file_size("upload_times.bin") / sizeof(double);
-    num_of_up_conts = bin_file_size("close_contacts.bin") / sizeof(contact);
+    num_of_uploads = bin_file_size("out/upload_times.bin") / sizeof(double);
+    num_of_up_conts = bin_file_size("out/close_contacts.bin") / sizeof(contact);
 
     contact* uploaded_contacts = (contact*)malloc(num_of_up_conts * sizeof(contact));
     double* upload_times = (double*)malloc(num_of_uploads * sizeof(double));
     int* contacts_nums = (int*)malloc(num_of_uploads * sizeof(int));
 
-    _fptr1 = fopen("close_contacts.bin", "rb");
-    _fptr2 = fopen("upload_times.bin", "rb");
-    _fptr3 = fopen("contacts_nums.bin", "rb");
+    _fptr1 = fopen("out/close_contacts.bin", "rb");
+    _fptr2 = fopen("out/upload_times.bin", "rb");
+    _fptr3 = fopen("out/contacts_nums.bin", "rb");
 
     if (_fptr1 == NULL || _fptr2 == NULL || _fptr3 == NULL) {
         printf("Error!");
@@ -118,11 +118,11 @@ void read_bt_search_times_bin()
     FILE* _fptr;
     size_t elements_read;
 
-    num_of_bt_searches = bin_file_size("bt_search_times.bin") / sizeof(double);
+    num_of_bt_searches = bin_file_size("out/bt_search_times.bin") / sizeof(double);
 
     double* bt_search_times = (double*)malloc(num_of_bt_searches * sizeof(double));
 
-    _fptr = fopen("bt_search_times.bin", "rb");
+    _fptr = fopen("out/bt_search_times.bin", "rb");
 
     if (_fptr == NULL) {
         printf("Error!");

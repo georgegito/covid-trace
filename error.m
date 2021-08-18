@@ -1,13 +1,13 @@
 clear;
 format long;
 %% find file size
-fileID = fopen('bt_search_times.bin');
+fileID = fopen('out/bt_search_times.bin');
 fseek(fileID, 0, 'eof');
 filesize = ftell(fileID) / 8;
 fclose(fileID);
 
 %% read file
-fileID = fopen('bt_search_times.bin');
+fileID = fopen('out/bt_search_times.bin');
 bt_search_times = fread(fileID, filesize,'double');
 fclose(fileID);
 

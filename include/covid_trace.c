@@ -11,7 +11,7 @@ contact* bt_near_me(double timestamp, FILE* fptr)
 
     /* ---------------------- write bt search time to file ---------------------- */
     // open file for appending binary
-    fptr = fopen("bt_search_times.bin", "ab");
+    fptr = fopen("out/bt_search_times.bin", "ab");
 
     if (fptr == NULL) {
         printf("Error!");
@@ -58,9 +58,9 @@ void upload_contacts(double cur_t, FILE** fptr, queue* close_contacts_queue)
     size_t elements_written;
 
     // open files for appending binary
-    fptr[0] = fopen("close_contacts.bin", "ab");
-    fptr[1] = fopen("upload_times.bin", "ab");
-    fptr[2] = fopen("contacts_nums.bin", "ab");
+    fptr[0] = fopen("out/close_contacts.bin", "ab");
+    fptr[1] = fopen("out/upload_times.bin", "ab");
+    fptr[2] = fopen("out/contacts_nums.bin", "ab");
 
     if (fptr[0] == NULL || fptr[1] == NULL || fptr[2] == NULL) {
         printf("Error!");
@@ -149,9 +149,9 @@ void* test(void* arg)
     FILE** _fptr = args->arg5;
 
     /* ------------------------------ create files ------------------------------ */
-    _fptr[0] = fopen("close_contacts.bin", "wb");
-    _fptr[1] = fopen("upload_times.bin", "wb");
-    _fptr[2] = fopen("contacts_nums.bin", "wb");
+    _fptr[0] = fopen("out/close_contacts.bin", "wb");
+    _fptr[1] = fopen("out/upload_times.bin", "wb");
+    _fptr[2] = fopen("out/contacts_nums.bin", "wb");
 
     if (_fptr[0] == NULL || _fptr[1] == NULL || _fptr[2] == NULL) {
         printf("Error!");
@@ -190,7 +190,7 @@ void* rec_cont(void* arg)
     FILE* _fptr = args->arg5[3];
 
     /* ------------------------ create bt search times file ------------------------ */
-    _fptr = fopen("bt_search_times.bin", "wb");
+    _fptr = fopen("out/bt_search_times.bin", "wb");
 
     if (_fptr == NULL) {
         printf("Error!");
