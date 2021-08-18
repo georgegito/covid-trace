@@ -134,7 +134,7 @@ void* timer(void* arg)
 
         if (*_cur_t > END_TIME) break;
 
-        usleep(100); // TODO check efficiency
+        usleep(100);
     }
 
     return (NULL);
@@ -165,13 +165,8 @@ void* test(void* arg)
     /* -------------------------------------------------------------------------- */
 
     // first test
-    if (test_covid()) {
-        // printf("Positive test (time: %lf)\n", *_cur_t);
+    if (test_covid())
         upload_contacts(*_cur_t, _fptr, _close_contacts_queue);
-    }
-    else {
-        // printf("Negative test (time: %lf)\n", *_cur_t);
-    }
 
     // test every TEST_TIME seconds
     while (1) {
@@ -179,19 +174,14 @@ void* test(void* arg)
 
         if (*_cur_t > END_TIME) break;
 
-        if (test_covid()) {
-            // printf("Positive test (time: %lf)\n", *_cur_t);
+        if (test_covid())
             upload_contacts(*_cur_t, _fptr, _close_contacts_queue);
-        }
-        else {
-            // printf("Negative test (time: %lf)\n", *_cur_t);
-        }
     }
 
     return (NULL);
 }
 
-void* rec_cont(void* arg) // TODO will be renamed to rec_cont
+void* rec_cont(void* arg)
 {
     struct arg_struct* args = (struct arg_struct*)arg;
     double* _t0 = args->arg1;
@@ -225,12 +215,8 @@ void* rec_cont(void* arg) // TODO will be renamed to rec_cont
 
         if (!_recent_contacts_queue->empty) {
 
-            if (*_cur_t - _recent_contacts_queue->buf[_recent_contacts_queue->head]->timestamp > RECENT_DEL_TIME) {
-
-                // pthread_mutex_lock(recent_contacts_queue->mut);
+            if (*_cur_t - _recent_contacts_queue->buf[_recent_contacts_queue->head]->timestamp > RECENT_DEL_TIME)
                 queue_del(_recent_contacts_queue);
-                // pthread_mutex_unlock(recent_contacts_queue->mut);
-            }
         }
 
         /* -------------------------------------------------------------------------- */
@@ -264,10 +250,8 @@ void* cl_cont(void* arg)
 
         if (!_close_contacts_queue->empty) {
 
-            if (*_cur_t - _close_contacts_queue->buf[_close_contacts_queue->head]->timestamp > CLOSE_DEL_TIME) {
-
+            if (*_cur_t - _close_contacts_queue->buf[_close_contacts_queue->head]->timestamp > CLOSE_DEL_TIME)
                 queue_del(_close_contacts_queue);
-            }
         }
 
         /* -------------------------------------------------------------------------- */

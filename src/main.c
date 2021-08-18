@@ -73,7 +73,6 @@ int main()
     }
 
     rc = pthread_create(&rec_cont_thread, NULL, rec_cont, (void*)args);
-    // usleep(100000);
     if (rc) {
         printf("Error: return code from pthread_create() is %d\n", rc);
         exit(-1);

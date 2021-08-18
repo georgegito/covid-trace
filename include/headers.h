@@ -2,9 +2,6 @@
 /*                                  headers.h                                 */
 /* -------------------------------------------------------------------------- */
 
-#ifndef __HEADERS_HPP__
-#define __HEADERS_HPP__
-
 #define SEARCH_TIME 10 // seconds
 #define TEST_TIME 4 * 60 * 60 / 100 // seconds
 #define RECENT_DEL_TIME 20 * 60 / 100 // seconds
@@ -15,7 +12,7 @@
 #define END_TIME 30 * 24 * 60 * 60 / 100 // seconds
 #define CLOSE_DEL_TIME 14 * 24 * 60 * 60 / 100 // seconds
 #define RECENT_QUEUESIZE (RECENT_DEL_TIME / SEARCH_TIME + 1)
-#define CLOSE_QUEUESIZE ((CLOSE_DEL_TIME / SEARCH_TIME) * ((MAX_CLOSE_CONTACT_TIME - MIN_CLOSE_CONTACT_TIME) / SEARCH_TIME) + 1) // TODO check
+#define CLOSE_QUEUESIZE ((CLOSE_DEL_TIME / SEARCH_TIME) * ((MAX_CLOSE_CONTACT_TIME - MIN_CLOSE_CONTACT_TIME) / SEARCH_TIME) + 1)
 
 /* --------------------------------- structs -------------------------------- */
 typedef struct
@@ -59,7 +56,3 @@ void cont_prt(queue* q);
 int bin_file_size(const char* filename);
 void read_cont_bin();
 void read_bt_search_times_bin();
-
-/* -------------------------------------------------------------------------- */
-
-#endif // __HEADERS_HPP__
