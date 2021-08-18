@@ -33,9 +33,9 @@ contact* bt_near_me(double timestamp, FILE* fptr)
     return _contact;
 }
 
-bool test_covid() // positive result propability: POS_TEST_PROP %
+bool test_covid() // positive result probability: POS_TEST_PROΒ %
 {
-    int temp1 = 100 / POS_TEST_PROP;
+    int temp1 = 100 / POS_TEST_PROB;
     int temp2 = rand() % temp1;
 
     if (temp2 == 0) {
