@@ -17,8 +17,8 @@
 int main()
 {
     /* ----------------------------- print contacts ----------------------------- */
-    // printf("\nuploaded_contacts:\n\n");
-    // read_cont_bin();
+    printf("\nuploaded_contacts:\n\n");
+    read_cont_bin();
 
     /* -------------------------- print bt search times ------------------------- */
     printf("\nbt_search_times:\n\n");

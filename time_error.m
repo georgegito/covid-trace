@@ -20,8 +20,10 @@ for i = 2: filesize
 end
 figure( 1 );
 plot( it_err, 'Linewidth', 0.5 );
-title( 'Time Error per Iteration', 'interpreter', 'latex', 'FontWeight', 'bold' );
-ylabel( 'Time Error (s)', 'interpreter', 'latex' );
+title( 'Real-Time Error per Iteration', 'interpreter', 'latex', 'FontWeight', 'bold' );
+ylabel( 'Real-Time Error (s)', 'interpreter', 'latex' );
+xlabel( 'Runtime (s)', 'interpreter', 'latex' );
+xlim([0 filesize]);
 
 %% correct times
 correct_times = [ 0: 10: ( filesize - 1 ) * 10 ]';
@@ -30,5 +32,7 @@ correct_times = [ 0: 10: ( filesize - 1 ) * 10 ]';
 acc_err = abs( bt_search_times - correct_times );
 figure( 2 );
 plot( acc_err, 'Linewidth', 0.8 );
-title( 'Accumulated Time Error', 'interpreter', 'latex' );
-ylabel( 'Time Error (s)', 'interpreter', 'latex', 'FontWeight', 'bold' );
+title( 'Accumulated Real-Time Error', 'interpreter', 'latex' );
+ylabel( 'Real-Time Error (s)', 'interpreter', 'latex', 'FontWeight', 'bold' );
+xlabel( 'Runtime (s)', 'interpreter', 'latex' );
+xlim([0 filesize]);
