@@ -20,15 +20,25 @@ make read
 ```
 
 ## Cross-compile for *ARM architecture* and run on RPI instructions:
-	1. Download cross-compile tools:
-		wget https://github.com/raspberrypi/tools/archive/master.zip
-		sudo unzip master.zip
-	2. Update PATH:
-		cd tools-master/arm-bcm2708
-		cd <toolchain fitting your OS> (check if u have 32 or 64 bit)
-		cd bin
-		pwd -> copy the path
-		export PATH=$PATH:<copied path>
-	3. Compile:
-	  	make pi
-	4. Run the executable 'build/main_pi' on 'Raspberry Pi'
+1. Download cross-compile tools:
+
+```bash
+wget https://github.com/raspberrypi/tools/archive/master.zip
+sudo unzip master.zip
+``` 
+2. Update PATH:
+```bash 
+cd tools-master/arm-bcm2708
+cd <toolchain fitting your OS> (check if u have 32 or 64 bit)
+cd bin
+pwd -> copy the path
+export PATH=$PATH:<copied path>
+```
+3. Compile:
+```bash	
+make pi
+```
+4. Run the executable `build/main_pi` on `Raspberry Pi`:
+```bash
+./main_pi
+```
