@@ -13,7 +13,7 @@ Compile and run in a *x86 architecture*:
 make
 ```
 
-Compile for *ARM architecture* (to run on *Raspberry Pi*):
+Cross-compile for *ARM architecture* (to run on *Raspberry Pi*):
 
 ```bash
 make pi
