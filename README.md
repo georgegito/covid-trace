@@ -19,7 +19,7 @@ Compile for *ARM architecture* (to run on *Raspberry Pi*):
 make pi
 ```
 
-Compile and run reader:
+Compile and run output file reader:
 
 ```bash
 make read
