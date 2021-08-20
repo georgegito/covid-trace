@@ -34,7 +34,7 @@ cd bin
 pwd -> copy the path
 export PATH=$PATH:<copied path>
 ```
-3. Compile:
+3. Cross-compile:
 ```bash	
 make pi
 ```
