@@ -1,5 +1,5 @@
 /.vscode
 /build
-/docker
 /rpi/tools_master
 /rpi/cross_compile_test
+/report/LaTeX
